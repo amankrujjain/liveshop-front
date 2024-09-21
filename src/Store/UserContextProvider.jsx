@@ -1,23 +1,26 @@
 import React, { createContext } from "react";
+const backendUrl = 'https://liveshop-back.onrender.com'
 
 export const User = createContext();
 async function login(item) {
-  var rawdata = await fetch("/login", {
+  var rawdata = await fetch(`${backendUrl}/login`, {
     method: "post",
     headers: {
       "content-type": "application/json",
     },
     body: JSON.stringify(item),
+    credentials: "include",
   });
   return await rawdata.json();
 }
 async function addUser(item) {
-  var rawdata = await fetch("/user", {
+  var rawdata = await fetch(`${backendUrl}/user`, {
     method: "post",
     headers: {
       "content-type": "application/json",
     },
     body: JSON.stringify(item),
+    credentials: "include",
   });
 
   // Check if the response has a valid body
@@ -39,13 +42,14 @@ async function updateUser(item) {
     const userID = localStorage.getItem("userid");
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("username");
-    const rawdata = await fetch(`/user/${userID}`, {
+    const rawdata = await fetch(`${backendUrl}/user/${userID}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
         username: username,
       },
-      body: item, // Handle JSON or FormData
+      body: item,
+      credentials: "include",
     });
 
     if (!rawdata.ok) {
@@ -67,13 +71,14 @@ async function getUser() {
     throw new Error("Missing token or username");
   }
 
-  const rawdata = await fetch("/user", {
+  const rawdata = await fetch(`${backendUrl}/user`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`, // Prefix with Bearer
       username: username,
     },
+    credentials: "include",
   });
 
   if (!rawdata.ok) {
@@ -94,13 +99,14 @@ async function getSingleUser() {
       throw new Error("Missing user ID or authentication token");
     }
 
-    const response = await fetch(`/user/${userId}`, {
+    const response = await fetch(`${backendUrl}/user/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`, // Add 'Bearer ' prefix to the token
         username: username,
       },
+      credentials: "include",
     });
 
     // Handle non-200 responses
@@ -134,13 +140,14 @@ async function deleteUser(item) {
       throw new Error("Missing token or username");
     }
 
-    var rawdata = await fetch(`/user/${item._id}`, {
+    var rawdata = await fetch(`${backendUrl}/user/${item._id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
         username: username,
       },
+      credentials: "include",
     });
     if (!rawdata.ok) {
       throw new Error("Unauthorized: Invalid token or missing token");
@@ -158,12 +165,13 @@ async function startWebAuthnRegistration(username) {
       throw new Error("Username is missing or incorrect.");
     }
 
-    const response = await fetch("/register-webauthn/start", {
+    const response = await fetch(`${backendUrl}/register-webauthn/start`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username }),
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -189,12 +197,13 @@ async function verifyWebAuthnRegistration(username, attestationResponse) {
       );
     }
 
-    const response = await fetch("/register-webauthn/verify", {
+    const response = await fetch(`${backendUrl}/register-webauthn/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, attestationResponse }),
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -217,12 +226,13 @@ async function startWebAuthnLogin(username) {
       throw new Error("Username is required for login.");
     }
 
-    const response = await fetch("/webauthn/login", {
+    const response = await fetch(`${backendUrl}/webauthn/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username }),
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -247,12 +257,13 @@ async function verifyWebAuthnLogin(username, authResponse) {
       );
     }
 
-    const response = await fetch("/login-webauthn/verify", {
+    const response = await fetch(`${backendUrl}/login-webauthn/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, authResponse }),
+      credentials: "include",
     });
 
     if (!response.ok) {
