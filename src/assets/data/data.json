@@ -1,0 +1,483 @@
+{
+  "checkout": [
+    {
+      "id": 0
+    },
+    {
+      "_id": "1",
+      "userid": "1",
+      "mode": "COD",
+      "status": "Delivered",
+      "paymentstatus": "Done",
+      "rppid": "",
+      "total": 8990,
+      "shipping": 0,
+      "final": 8990,
+      "products": [
+        {
+          "_id": 1,
+          "userid": "1",
+          "productid": "3",
+          "name": "Man Tshirt Adidas ",
+          "maincategory": "Male",
+          "subcategory": "Tshirt",
+          "brand": "Adidas",
+          "color": "Black",
+          "size": "XL",
+          "price": 800,
+          "qty": 1,
+          "total": 800,
+          "pic": "p3.jpg"
+        },
+        {
+          "_id": 2,
+          "userid": "1",
+          "productid": "2",
+          "name": "Man Jeans Mufti Slim Fit",
+          "maincategory": "Male",
+          "subcategory": "Jeans",
+          "brand": "Mufti",
+          "color": "Blue",
+          "size": "SM",
+          "price": 5940,
+          "qty": 1,
+          "total": 5940,
+          "pic": "p1.jpg"
+        },
+        {
+          "_id": 3,
+          "userid": "1",
+          "productid": "4",
+          "name": "Woman Jeans Slim fit Tommy Filfigure",
+          "maincategory": "Female",
+          "subcategory": "Jeans",
+          "brand": "Tomy Hillfigure",
+          "color": "Blue",
+          "size": "SM",
+          "price": 650,
+          "qty": 1,
+          "total": 650,
+          "pic": "p9.jpg"
+        },
+        {
+          "_id": 4,
+          "userid": "1",
+          "productid": "5",
+          "name": "Kids Jeans Mufti",
+          "maincategory": "Kids",
+          "subcategory": "Jeans",
+          "brand": "Mufti",
+          "color": "Blue",
+          "size": "XL",
+          "price": 1600,
+          "qty": 1,
+          "total": 1600,
+          "pic": "p62.jpg"
+        }
+      ],
+      "id": 1
+    },
+    {
+      "userid": "1",
+      "mode": "COD",
+      "status": "Order Placed",
+      "paymentstatus": "Pending",
+      "rppid": "",
+      "total": 7050,
+      "shipping": 0,
+      "final": 7050,
+      "products": [
+        {
+          "_id": 4,
+          "userid": "1",
+          "productid": "5",
+          "name": "Kids Jeans Mufti",
+          "maincategory": "Kids",
+          "subcategory": "Jeans",
+          "brand": "Mufti",
+          "color": "Blue",
+          "size": "XL",
+          "pic": "p62.jpg",
+          "price": 1600,
+          "qty": 4,
+          "total": 6400
+        },
+        {
+          "_id": 5,
+          "userid": "1",
+          "productid": "4",
+          "name": "Woman Jeans Slim fit Tommy Filfigure",
+          "maincategory": "Female",
+          "subcategory": "Jeans",
+          "brand": "Tomy Hillfigure",
+          "color": "Blue",
+          "size": "SM",
+          "price": 650,
+          "qty": 1,
+          "total": 650,
+          "pic": "p9.jpg"
+        }
+      ],
+      "id": 2
+    },
+    {
+      "_id": "3",
+      "userid": "1",
+      "mode": "COD",
+      "status": "Dispatched",
+      "paymentstatus": "Pending",
+      "rppid": "",
+      "total": 5940,
+      "shipping": 0,
+      "final": 5940,
+      "date": "2022-09-30T03:45:42.685Z",
+      "products": [
+        {
+          "_id": 1,
+          "userid": "1",
+          "productid": "2",
+          "name": "Man Jeans Mufti Slim Fit",
+          "maincategory": "Male",
+          "subcategory": "Jeans",
+          "brand": "Mufti",
+          "color": "Blue",
+          "size": "SM",
+          "price": 5940,
+          "qty": 1,
+          "total": 5940,
+          "pic": "p1.jpg"
+        }
+      ],
+      "id": 3
+    }
+  ],
+  "cart": [
+    {
+      "id": 0
+    }
+  ],
+  "wishlist": [
+    {
+      "id": 0
+    },
+    {
+      "userid": "1",
+      "productid": "10",
+      "name": "Female Trouser Gucci",
+      "maincategory": "Female",
+      "subcategory": "Trouser",
+      "brand": "Gucci",
+      "color": "Black",
+      "size": "SM",
+      "price": 394.5,
+      "pic": "p71.jpg",
+      "id": 1
+    }
+  ],
+  "newslatter": [
+    {
+      "email": "vishankchauhan@gmail.com",
+      "id": 1
+    },
+    {
+      "email": "vishankchauhan1@gmail.com",
+      "id": 2
+    },
+    {
+      "email": "vishankchauhan2@gmail.com",
+      "id": 3
+    },
+    {
+      "email": "vishankchauhan3@gmail.com",
+      "id": 4
+    }
+  ],
+  "maincategory": [
+    {
+      "_id": "1",
+      "name": "Male",
+      "id": 1
+    },
+    {
+      "_id": "2",
+      "name": "Female",
+      "id": 2
+    },
+    {
+      "name": "Kids",
+      "id": 3
+    }
+  ],
+  "subcategory": [
+    {
+      "name": "Jeans",
+      "id": 1
+    },
+    {
+      "_id": "2",
+      "name": "Tshirt",
+      "id": 2
+    },
+    {
+      "_id": "3",
+      "name": "Shirt",
+      "id": 3
+    },
+    {
+      "name": "Trouser",
+      "id": 4
+    }
+  ],
+  "Brand": [
+    {
+      "name": "Adidas",
+      "id": 1
+    },
+    {
+      "name": "Mufti",
+      "id": 2
+    },
+    {
+      "name": "Gucci",
+      "id": 3
+    },
+    {
+      "name": "Zara",
+      "id": 4
+    },
+    {
+      "name": "Nike",
+      "id": 5
+    },
+    {
+      "name": "Tomy Hillfigure",
+      "id": 6
+    },
+    {
+      "_id": "7",
+      "name": "Puma",
+      "id": 7
+    }
+  ],
+  "product": [
+    {
+      "name": "Man Jeans Mufti Slim Fit",
+      "maincategory": "Male",
+      "subcategory": "Jeans",
+      "brand": "Mufti",
+      "color": "Blue",
+      "size": "SM",
+      "baseprice": 9000,
+      "discount": 34,
+      "finalprice": 5940,
+      "stock": "In Stock",
+      "description": "This is Sample Product",
+      "pic1": "p1.jpg",
+      "pic2": "p2.jpg",
+      "pic3": "p16.jpg",
+      "pic4": "p5.jpg",
+      "id": 2
+    },
+    {
+      "name": "Man Tshirt Adidas ",
+      "maincategory": "Male",
+      "subcategory": "Tshirt",
+      "brand": "Adidas",
+      "color": "Black",
+      "size": "XL",
+      "baseprice": 8000,
+      "discount": 90,
+      "finalprice": 800,
+      "stock": "In Stock",
+      "description": "This is Sample Product",
+      "pic1": "p3.jpg",
+      "pic2": "p51.jpg",
+      "pic3": "p21.jpg",
+      "pic4": "p29.jpg",
+      "id": 3
+    },
+    {
+      "_id": "4",
+      "name": "Woman Jeans Slim fit Tommy Filfigure",
+      "maincategory": "Female",
+      "subcategory": "Jeans",
+      "brand": "Tomy Hillfigure",
+      "color": "Blue",
+      "size": "SM",
+      "baseprice": 1000,
+      "discount": 35,
+      "finalprice": 650,
+      "stock": "In Stock",
+      "description": "This is Sample Product",
+      "pic1": "p9.jpg",
+      "pic2": "p6.jpg",
+      "pic3": "p17.jpg",
+      "pic4": "p19.jpg",
+      "id": 4
+    },
+    {
+      "name": "Kids Jeans Mufti",
+      "maincategory": "Kids",
+      "subcategory": "Jeans",
+      "brand": "Mufti",
+      "color": "Blue",
+      "size": "XL",
+      "baseprice": 10000,
+      "discount": 84,
+      "finalprice": 1600,
+      "stock": "In Stock",
+      "description": "This is Sample Product",
+      "pic1": "p62.jpg",
+      "pic2": "p42.jpg",
+      "pic3": "p67.jpg",
+      "pic4": "p65.jpg",
+      "id": 5
+    },
+    {
+      "name": "Kids Tshirt Adidas",
+      "maincategory": "Kids",
+      "subcategory": "Tshirt",
+      "brand": "Adidas",
+      "color": "Blue",
+      "size": "SM",
+      "baseprice": 9000,
+      "discount": 90,
+      "finalprice": 900,
+      "stock": "In Stock",
+      "description": "This is Sample Product",
+      "pic1": "p60.jpg",
+      "pic2": "p59.jpg",
+      "pic3": "p58.jpg",
+      "pic4": "p61.jpg",
+      "id": 6
+    },
+    {
+      "name": "Male Tshirt Nike",
+      "maincategory": "Male",
+      "subcategory": "Tshirt",
+      "brand": "Nike",
+      "color": "Black",
+      "size": "XL",
+      "baseprice": 5000,
+      "discount": 90,
+      "finalprice": 500,
+      "stock": "In Stock",
+      "description": "This is Sample Product",
+      "pic1": "p44.jpg",
+      "pic2": "p2.jpg",
+      "pic3": "p1.jpg",
+      "pic4": "p54.jpg",
+      "id": 7
+    },
+    {
+      "name": "Male Jeans Tommy Hilfiger",
+      "maincategory": "Male",
+      "subcategory": "Jeans",
+      "brand": "Tomy Hillfigure",
+      "color": "Blue",
+      "size": "XXL",
+      "baseprice": 9000,
+      "discount": 90,
+      "finalprice": 900,
+      "stock": "In Stock",
+      "description": "This is Sample Product",
+      "pic1": "p5.jpg",
+      "pic2": "p2.jpg",
+      "pic3": "p7.jpg",
+      "pic4": "p15.jpg",
+      "id": 8
+    },
+    {
+      "name": "Female Jeans Mufti",
+      "maincategory": "Female",
+      "subcategory": "Jeans",
+      "brand": "Mufti",
+      "color": "Blue",
+      "size": "SM",
+      "baseprice": 10000,
+      "discount": 80,
+      "finalprice": 2000,
+      "stock": "In Stock",
+      "description": "This is Sample Product",
+      "pic1": "p53.jpg",
+      "pic2": "p55.jpg",
+      "pic3": "p32.jpg",
+      "pic4": "p33.jpg",
+      "id": 9
+    },
+    {
+      "_id": "10",
+      "name": "Female Trouser Gucci",
+      "maincategory": "Female",
+      "subcategory": "Trouser",
+      "brand": "Gucci",
+      "color": "Black",
+      "size": "SM",
+      "baseprice": 7890,
+      "discount": 95,
+      "finalprice": 394.5,
+      "stock": "In Stock",
+      "description": "This is Sample Product",
+      "pic1": "p71.jpg",
+      "pic2": "p70.jpg",
+      "pic3": "p72.jpg",
+      "pic4": "p74.jpg",
+      "id": 10
+    }
+  ],
+  "user": [
+    {
+      "id": 0
+    },
+    {
+      "_id": 1,
+      "name": "Nitin Chauhan",
+      "username": "nitin",
+      "email": "vishankchauhan@gmail.com",
+      "phone": "9873848046",
+      "password": "Nitin@123",
+      "addressline1": "Village mahawatpur post bhaskola house number 154",
+      "addressline2": "Near water plant",
+      "addressline3": "Village Sample",
+      "pin": "121002",
+      "city": "Faridabad",
+      "state": "Haryana",
+      "pic": "p2.jpg",
+      "role": "User",
+      "id": 1
+    },
+    {
+      "_id": 2,
+      "name": "Vishank Chauhan",
+      "username": "vishank",
+      "email": "vishankchauhan@gmail.com",
+      "phone": "9873848046",
+      "password": "Vishank@123",
+      "addressline1": "",
+      "addressline2": "",
+      "addressline3": "",
+      "pin": "",
+      "city": "",
+      "state": "",
+      "pic": "p16.jpg",
+      "role": "Admin",
+      "id": 2
+    }
+  ],
+  "contact": [
+    {
+      "id": 0
+    },
+    {
+      "_id": "1",
+      "status": "Done",
+      "name": "Nitin Chauhan",
+      "email": "vishankchauhan@gmail.com",
+      "phone": "9873848046",
+      "subject": "This is a sample Message used to check contact us page",
+      "message": "This is a sample Message used to check contact us pageThis is a sample Message used to check contact us pageThis is a sample Message used to check contact us pageThis is a sample Message used to check contact us pageThis is a sample Message used to check contact us pageThis is a sample Message used to check contact us pageThis is a sample Message used to check contact us pageThis is a sample Message used to check contact us pageThis is a sample Message used to check contact us pageThis is a sample Message used to check contact us pageThis is a sample Message used to check contact us page",
+      "date": "2022-09-22T07:59:13.116Z",
+      "id": 1
+    }
+  ]
+}

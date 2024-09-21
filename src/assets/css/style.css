@@ -1,0 +1,17 @@
+.background{
+    background-color: orangered;
+}
+.mybtn{
+    border:none;
+}
+.mybtn:hover{
+    border:none;
+}
+.formbtn:hover{
+    background-color: rgb(197, 57, 6);
+}
+.formbtn{
+    background-color: orangered;
+    border: none;
+    padding: 5px;
+}
