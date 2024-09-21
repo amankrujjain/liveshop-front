@@ -19,8 +19,21 @@ async function addUser(item) {
     },
     body: JSON.stringify(item),
   });
-  return await rawdata.json();
+
+  // Check if the response has a valid body
+  if (rawdata.ok) {
+    const contentType = rawdata.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return await rawdata.json();
+    } else {
+      // Return an empty object if there's no JSON in the response
+      return {};
+    }
+  } else {
+    throw new Error("Failed to add user. Server returned " + rawdata.status);
+  }
 }
+
 async function updateUser(item) {
   try {
     const userID = localStorage.getItem("userid");
