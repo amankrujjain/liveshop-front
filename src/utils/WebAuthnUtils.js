@@ -11,6 +11,7 @@ function bufferEncode(value) {
 // Function to start WebAuthn Registration
 export async function startWebAuthnRegistration(options) {
     try {
+        console.log('options--->',options)
         options.user.id = bufferDecode(options.user.id);
         options.challenge = bufferDecode(options.challenge);
 
@@ -32,7 +33,7 @@ export async function startWebAuthnRegistration(options) {
 
         return attestationResponse;
     } catch (error) {
-        console.error("WebAuthN Registration Error:", error);
+        console.error("WebAuthN Registration Error:", error.message);
         throw error;
     }
 }

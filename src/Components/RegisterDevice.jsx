@@ -13,33 +13,11 @@ export default function RegisterDevice({ username }) {
     async function registerDevice() {
         if (isWebAuthnSupported) {
             try {
-                // Request WebAuthn options from the server
-                const webAuthnOptions = await fetch('/register-webauthn/start', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username })
-                }).then(res => res.json());
-
-                if (webAuthnOptions.error) {
-                    throw new Error(webAuthnOptions.error);
-                }
-
                 // Start WebAuthn registration (trigger fingerprint/biometric prompt)
-                const credential = await startWebAuthnRegistration(webAuthnOptions);
+                const webAuthnOptions = await startWebAuthnRegistration({ username });
 
                 // Verify the registration with the backend
-                const verifyResponse = await fetch('/register-webauthn/verify', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username,
-                        attestationResponse: credential
-                    })
-                }).then(res => res.json());
+                const verifyResponse = await verifyWebAuthnRegistration(username, webAuthnOptions);
 
                 if (verifyResponse.result === "Done") {
                     alert("Device successfully registered!");

@@ -1,5 +1,5 @@
 import React, { createContext } from "react";
-const backendUrl = 'https://liveshop-back.onrender.com'
+const backendUrl = process.env.NODE_ENV === 'production'? 'https://liveshop-back.onrender.com' : 'http://localhost:8000'; 
 
 export const User = createContext();
 async function login(item) {
