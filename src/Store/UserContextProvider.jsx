@@ -7,6 +7,7 @@ async function login(item) {
     method: "post",
     headers: {
       "content-type": "application/json",
+      "username": item.username
     },
     body: JSON.stringify(item),
     credentials: "include",
@@ -15,9 +16,10 @@ async function login(item) {
 }
 async function addUser(item) {
   var rawdata = await fetch(`${backendUrl}/user`, {
-    method: "post",
+    method: "POST",
     headers: {
       "content-type": "application/json",
+      "username": item.username
     },
     body: JSON.stringify(item),
     credentials: "include",
@@ -169,6 +171,7 @@ async function startWebAuthnRegistration(username) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "username": username
       },
       body: JSON.stringify({ username }),
       credentials: "include",
@@ -201,6 +204,7 @@ async function verifyWebAuthnRegistration(username, attestationResponse) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "username": username
       },
       body: JSON.stringify({ username, attestationResponse }),
       credentials: "include",
@@ -230,6 +234,7 @@ async function startWebAuthnLogin(username) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "username":username
       },
       body: JSON.stringify({ username }),
       credentials: "include",
@@ -261,6 +266,7 @@ async function verifyWebAuthnLogin(username, authResponse) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "username":username
       },
       body: JSON.stringify({ username, authResponse }),
       credentials: "include",
