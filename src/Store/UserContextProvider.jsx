@@ -1,5 +1,5 @@
 import React, { createContext } from "react";
-const backendUrl = process.env.NODE_ENV === 'production'? 'https://liveshop-back.onrender.com' : 'http://localhost:8000'; 
+const backendUrl ='http://localhost:8000'; 
 
 export const User = createContext();
 async function login(item) {
@@ -7,11 +7,11 @@ async function login(item) {
     method: "post",
     headers: {
       "content-type": "application/json",
-      "username": item.username
     },
     body: JSON.stringify(item),
     credentials: "include",
   });
+  console.log("Raw data after login,",rawdata)
   return await rawdata.json();
 }
 async function addUser(item) {
@@ -171,25 +171,28 @@ async function startWebAuthnRegistration(username) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "username": username
       },
       body: JSON.stringify({ username }),
       credentials: "include",
     });
 
     if (!response.ok) {
-      // Log the response body for better debugging in case of error
+      // Log the error body for better debugging
       const errorBody = await response.json();
       console.error("Error response from server:", errorBody);
       throw new Error("An error occurred while registering the user.");
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("WebAuthn registration options from server:", data);
+
+    return data; // This contains the options for navigator.credentials.create
   } catch (error) {
     console.error("Error during WebAuthN registration start:", error.message);
     return { error: error.message };
   }
 }
+
 
 // WebAuthN Registration Verification
 async function verifyWebAuthnRegistration(username, attestationResponse) {
