@@ -61,7 +61,8 @@ export default function Signup() {
 
             // Add user through context
             const response = await add(newUser);
-            if (response.result === "Done") {
+            console.log("Response in sign up", response)
+            if (response.status === true) {
                 if (isWebAuthnSupported) {
                     try {
                         // Request WebAuthN options from the server
