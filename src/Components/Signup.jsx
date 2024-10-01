@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import pic from "../assets/images/signup.jpg";
-import { User } from '../Store/UserContextProvider'; // Context that handles user data
-import { startWebAuthnRegistration, verifyWebAuthnRegistration } from '../utils/WebAuthnUtils'; // Utility functions for WebAuthn
+import { User } from '../Store/UserContextProvider'; // Ensure the correct context
+import { startWebAuthnRegistration, verifyWebAuthnRegistration } from '../utils/WebAuthnUtils'; // Ensure these utilities are correct
 
 export default function Signup() {
     const [user, setUser] = useState({
@@ -18,12 +18,16 @@ export default function Signup() {
     
     const [isWebAuthnSupported, setIsWebAuthnSupported] = useState(false);
 
-    // Check if WebAuthn is supported on the device
     useEffect(() => {
         if (window.PublicKeyCredential) {
+            alert("WebAuthn is supported");
             setIsWebAuthnSupported(true);
+        } else {
+            alert("WebAuthn is not supported");
+            setIsWebAuthnSupported(false);
         }
     }, []);
+    
 
     // Handle form data
     function getData(e) {
@@ -101,18 +105,19 @@ export default function Signup() {
                     navigate("/login");
                 }
             } else {
+                console.log("Response message", response.message)
                 alert(response.message);
+                navigate('/login')
             }
         } else {
             alert("Password and Confirm Password do not match!");
         }
-    }
-
+    };
     return (
         <div className='container-fluid mt-2'>
             <div className='row'>
                 <div className='col-md-6 col-12'>
-                    <img src={pic} height="500px" width="100%" alt="" />
+                    <img src={pic} height="500px" width="100%" alt="Signup" />
                 </div>
                 <div className='col-md-6 col-12'>
                     <h5 className='background text-light text-center p-2'>SignUp Section</h5>
@@ -148,10 +153,10 @@ export default function Signup() {
                             </div>
                         </div>
                         <button type="submit" className="background mybtn text-light  w-100 btn-sm p-1">Signup</button>
-                        <Link to="/login" className='text-decoration-none mt-2'>Already Have an Account?Login</Link>
+                        <Link to="/login" className='text-decoration-none mt-2'>Already Have an Account? Login</Link>
                     </form>
                 </div>
             </div>
         </div>
-    )
+    );
 }

@@ -15,29 +15,28 @@ async function login(item) {
   return await rawdata.json();
 }
 async function addUser(item) {
-  var rawdata = await fetch(`${backendUrl}/user`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "username": item.username
-    },
-    body: JSON.stringify(item),
-    credentials: "include",
-  });
+  try {
+    const rawdata = await fetch(`${backendUrl}/create-user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(item),
+      credentials: "include",
+    });
 
-  // Check if the response has a valid body
-  if (rawdata.ok) {
-    const contentType = rawdata.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      return await rawdata.json();
-    } else {
-      // Return an empty object if there's no JSON in the response
-      return {};
-    }
-  } else {
-    throw new Error("Failed to add user. Server returned " + rawdata.status);
+    if(!rawdata.ok){
+      throw new Error(`Failed to add user. Server return status ${rawdata.status}`)
+    };
+
+    const data = await rawdata.json();
+    return data;
+  } catch (error) {
+    console.error("Error adding user:", error);
+    return { result: "Fail", message: error.message };
   }
 }
+
 
 async function updateUser(item) {
   try {
