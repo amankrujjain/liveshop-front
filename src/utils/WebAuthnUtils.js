@@ -1,3 +1,6 @@
+const backendUrl =process.env.NODE_ENV==="production"?"https://liveshop-back.onrender.com":'http://localhost:8000'; 
+
+
 // Utility function to decode base64 to array buffer
 function bufferDecode(value) {
     return Uint8Array.from(atob(value), c => c.charCodeAt(0));
@@ -9,16 +12,42 @@ function bufferEncode(value) {
 }
 
 // Function to start WebAuthn Registration
-export async function startWebAuthnRegistration(options) {
+export async function startWebAuthnRegistration(username) {
     try {
-        console.log('options--->',options)
-        options.user.id = bufferDecode(options.user.id);
-        options.challenge = bufferDecode(options.challenge);
+        if (!username) {
+            throw new Error("Username is missing or incorrect.");
+        }
+
+        // Call the backend API to get registration options
+        const response = await fetch(`${backendUrl}/register-webauthn/start`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username }),
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            // Log the error body for better debugging
+            const errorBody = await response.json();
+            console.error("Error response from server:", errorBody);
+            throw new Error("An error occurred while registering the user.");
+        }
+
+        const webAuthnOptions = await response.json();
+        console.log("WebAuthn registration options from server:", webAuthnOptions);
+
+        // Decode challenge and user.id from Base64 to Uint8Array
+        webAuthnOptions.user.id = bufferDecode(webAuthnOptions.user.id);
+        webAuthnOptions.challenge = bufferDecode(webAuthnOptions.challenge);
 
         // WebAuthn registration request using navigator.credentials.create
         const credential = await navigator.credentials.create({
-            publicKey: options,
+            publicKey: webAuthnOptions,
         });
+
+        console.log("Credentials in WebAuthn utils", credential);
 
         // Prepare attestation response to be sent back to the backend
         const attestationResponse = {
@@ -31,6 +60,8 @@ export async function startWebAuthnRegistration(options) {
             type: credential.type,
         };
 
+        console.log("Attestation response",attestationResponse)
+
         return attestationResponse;
     } catch (error) {
         console.error("WebAuthN Registration Error:", error.message);
@@ -38,11 +69,12 @@ export async function startWebAuthnRegistration(options) {
     }
 }
 
+
 // Function to verify WebAuthn registration
 export async function verifyWebAuthnRegistration(username, credential) {
     try {
         // Send the attestation response to the server for verification
-        const response = await fetch('/register-webauthn/verify', {
+        const response = await fetch(`${backendUrl}/register-webauthn/verify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

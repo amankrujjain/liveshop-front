@@ -72,10 +72,15 @@ export default function Signup() {
                         if (webAuthnOptions.error) {
                             throw new Error(webAuthnOptions.error);
                         }
+
+                        console.log("Type of webAuthn option challenge", typeof(webAuthnOptions.challenge))
     
                         // Decode the challenge and user.id from Base64 to Uint8Array
                         const decodedChallenge = Uint8Array.from(atob(webAuthnOptions.challenge), c => c.charCodeAt(0));
                         const decodedUserId = Uint8Array.from(atob(webAuthnOptions.user.id), c => c.charCodeAt(0));
+
+                        console.log("DecodeChallenge",decodedChallenge);
+                        console.log("DecodeUserID",decodedUserId);
     
                         // Replace challenge and user.id in webAuthnOptions
                         webAuthnOptions.challenge = decodedChallenge;
