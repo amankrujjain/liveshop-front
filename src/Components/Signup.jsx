@@ -68,34 +68,22 @@ export default function Signup() {
                         // Request WebAuthN options from the server
                         const webAuthnOptions = await startWebAuthnRegistration(user.username);
                         console.log("WebAuthn Options from Backend", webAuthnOptions);
-    
+                
                         if (webAuthnOptions.error) {
                             throw new Error(webAuthnOptions.error);
                         }
-
-                        console.log("Type of webAuthn option challenge", typeof(webAuthnOptions.challenge))
-    
-                        // Decode the challenge and user.id from Base64 to Uint8Array
-                        const decodedChallenge = Uint8Array.from(atob(webAuthnOptions.challenge), c => c.charCodeAt(0));
-                        const decodedUserId = Uint8Array.from(atob(webAuthnOptions.user.id), c => c.charCodeAt(0));
-
-                        console.log("DecodeChallenge",decodedChallenge);
-                        console.log("DecodeUserID",decodedUserId);
-    
-                        // Replace challenge and user.id in webAuthnOptions
-                        webAuthnOptions.challenge = decodedChallenge;
-                        webAuthnOptions.user.id = decodedUserId;
-    
+                
                         // Start WebAuthn registration with properly formatted options
                         const credential = await navigator.credentials.create({
                             publicKey: webAuthnOptions,
                         });
-                        
+                
                         console.log("Verification credentials", credential);
-    
+                
                         // Verify the WebAuthn registration with the backend
                         const verifyResponse = await verifyWebAuthnRegistration(user.username, credential);
-    
+                        console.log("Response from the verification:", verifyResponse);
+                
                         if (verifyResponse.result === "Done") {
                             alert("Signup and WebAuthN Registration Successful!");
                             navigate("/login");

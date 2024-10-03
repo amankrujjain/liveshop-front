@@ -1,12 +1,15 @@
 const backendUrl =process.env.NODE_ENV==="production"?"https://liveshop-back.onrender.com":'http://localhost:8000'; 
 
 
-// Utility function to decode base64 to array buffer
 function bufferDecode(value) {
-    return Uint8Array.from(atob(value), c => c.charCodeAt(0));
+    console.log("Value coming in the utils logic for decoding:", value);
+    // Ensure padding is correct for Base64
+    const paddingNeeded = 4 - (value.length % 4);
+    const paddedValue = paddingNeeded === 4 ? value : value + "=".repeat(paddingNeeded);
+    return Uint8Array.from(atob(paddedValue), c => c.charCodeAt(0));
 }
 
-// Utility function to encode array buffer to base64
+// Utility function to encode array buffer to base64 (for sending back binary data as strings)
 function bufferEncode(value) {
     return btoa(String.fromCharCode(...new Uint8Array(value)));
 }
@@ -29,7 +32,6 @@ export async function startWebAuthnRegistration(username) {
         });
 
         if (!response.ok) {
-            // Log the error body for better debugging
             const errorBody = await response.json();
             console.error("Error response from server:", errorBody);
             throw new Error("An error occurred while registering the user.");
@@ -37,10 +39,23 @@ export async function startWebAuthnRegistration(username) {
 
         const webAuthnOptions = await response.json();
         console.log("WebAuthn registration options from server:", webAuthnOptions);
+        
+        // If the ID and challenge are already binary (Uint8Array), no need to decode
+        console.log("Checking if user ID and challenge are binary");
 
-        // Decode challenge and user.id from Base64 to Uint8Array
-        webAuthnOptions.user.id = bufferDecode(webAuthnOptions.user.id);
-        webAuthnOptions.challenge = bufferDecode(webAuthnOptions.challenge);
+        if (webAuthnOptions.user.id instanceof Uint8Array) {
+            console.log("User ID is already binary");
+        } else if (typeof webAuthnOptions.user.id === 'string') {
+            console.log("User ID is in string format, decoding...");
+            webAuthnOptions.user.id = bufferDecode(webAuthnOptions.user.id);
+        }
+
+        if (webAuthnOptions.challenge instanceof Uint8Array) {
+            console.log("Challenge is already binary");
+        } else if (typeof webAuthnOptions.challenge === 'string') {
+            console.log("Challenge is in string format, decoding...");
+            webAuthnOptions.challenge = bufferDecode(webAuthnOptions.challenge);
+        }
 
         // WebAuthn registration request using navigator.credentials.create
         const credential = await navigator.credentials.create({
@@ -60,7 +75,7 @@ export async function startWebAuthnRegistration(username) {
             type: credential.type,
         };
 
-        console.log("Attestation response",attestationResponse)
+        console.log("Attestation response", attestationResponse);
 
         return attestationResponse;
     } catch (error) {
