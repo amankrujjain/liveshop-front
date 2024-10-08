@@ -15,7 +15,7 @@ export default function Signup() {
     });
     const { add } = useContext(User); // Context to add user
     const navigate = useNavigate();
-    
+
     const [isWebAuthnSupported, setIsWebAuthnSupported] = useState(false);
 
     useEffect(() => {
@@ -27,7 +27,7 @@ export default function Signup() {
             setIsWebAuthnSupported(false);
         }
     }, []);
-    
+
 
     // Handle form data
     function getData(e) {
@@ -65,25 +65,13 @@ export default function Signup() {
             if (response.status === true) {
                 if (isWebAuthnSupported) {
                     try {
-                        // Request WebAuthN options from the server
-                        const webAuthnOptions = await startWebAuthnRegistration(user.username);
-                        console.log("WebAuthn Options from Backend", webAuthnOptions);
-                
-                        if (webAuthnOptions.error) {
-                            throw new Error(webAuthnOptions.error);
-                        }
-                
-                        // Start WebAuthn registration with properly formatted options
-                        const credential = await navigator.credentials.create({
-                            publicKey: webAuthnOptions,
-                        });
-                
-                        console.log("Verification credentials", credential);
-                
+                        const attestationResponse = await startWebAuthnRegistration(user.username);
+                        console.log("Attestation created Response", attestationResponse);
+
                         // Verify the WebAuthn registration with the backend
-                        const verifyResponse = await verifyWebAuthnRegistration(user.username, credential);
-                        console.log("Response from the verification:", verifyResponse);
-                
+                        const verifyResponse = await verifyWebAuthnRegistration(user.username, attestationResponse);
+
+
                         if (verifyResponse.result === "Done") {
                             alert("Signup and WebAuthN Registration Successful!");
                             navigate("/login");

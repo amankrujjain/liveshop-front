@@ -160,70 +160,70 @@ async function deleteUser(item) {
   }
 }
 
-async function startWebAuthnRegistration(username) {
-  try {
-    if (!username) {
-      throw new Error("Username is missing or incorrect.");
-    }
+// async function startWebAuthnRegistration(username) {
+//   try {
+//     if (!username) {
+//       throw new Error("Username is missing or incorrect.");
+//     }
 
-    const response = await fetch(`${backendUrl}/register-webauthn/start`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username }),
-      credentials: "include",
-    });
+//     const response = await fetch(`${backendUrl}/register-webauthn/start`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ username }),
+//       credentials: "include",
+//     });
 
-    if (!response.ok) {
-      // Log the error body for better debugging
-      const errorBody = await response.json();
-      console.error("Error response from server:", errorBody);
-      throw new Error("An error occurred while registering the user.");
-    }
+//     if (!response.ok) {
+//       // Log the error body for better debugging
+//       const errorBody = await response.json();
+//       console.error("Error response from server:", errorBody);
+//       throw new Error("An error occurred while registering the user.");
+//     }
 
-    const data = await response.json();
-    console.log("WebAuthn registration options from server:", data);
+//     const data = await response.json();
+//     console.log("WebAuthn registration options from server:", data);
 
-    return data; // This contains the options for navigator.credentials.create
-  } catch (error) {
-    console.error("Error during WebAuthN registration start:", error.message);
-    return { error: error.message };
-  }
-}
+//     return data; // This contains the options for navigator.credentials.create
+//   } catch (error) {
+//     console.error("Error during WebAuthN registration start:", error.message);
+//     return { error: error.message };
+//   }
+// }
 
 
-// WebAuthN Registration Verification
-async function verifyWebAuthnRegistration(username, attestationResponse) {
-  try {
-    if (!username || !attestationResponse) {
-      throw new Error(
-        "Username or attestation response is missing, registration verification failed."
-      );
-    }
+// // WebAuthN Registration Verification
+// async function verifyWebAuthnRegistration(username, attestationResponse) {
+//   try {
+//     if (!username || !attestationResponse) {
+//       throw new Error(
+//         "Username or attestation response is missing, registration verification failed."
+//       );
+//     }
 
-    const response = await fetch(`${backendUrl}/register-webauthn/verify`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "username": username
-      },
-      body: JSON.stringify({ username, attestationResponse }),
-      credentials: "include",
-    });
+//     const response = await fetch(`${backendUrl}/register-webauthn/verify`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         "username": username
+//       },
+//       body: JSON.stringify({ username, attestationResponse }),
+//       credentials: "include",
+//     });
 
-    if (!response.ok) {
-      const errorBody = await response.json();
-      console.error("Error response from server:", errorBody);
-      throw new Error("Failed to verify the registered user.");
-    }
+//     if (!response.ok) {
+//       const errorBody = await response.json();
+//       console.error("Error response from server:", errorBody);
+//       throw new Error("Failed to verify the registered user.");
+//     }
 
-    return await response.json();
-  } catch (error) {
-    console.error("Error during WebAuthN registration verification:", error.message);
-    return { error: error.message };
-  }
-}
+//     return await response.json();
+//   } catch (error) {
+//     console.error("Error during WebAuthN registration verification:", error.message);
+//     return { error: error.message };
+//   }
+// }
 
 // WebAuthN Login Start
 async function startWebAuthnLogin(username) {
@@ -297,8 +297,8 @@ export default function UserContextProvider(props) {
         deleteData: deleteUser,
         getSingle: getSingleUser,
         update: updateUser,
-        startWebAuthnRegisteration: startWebAuthnRegistration,
-        verifyWebAuthnRegistration: verifyWebAuthnRegistration,
+        // startWebAuthnRegisteration: startWebAuthnRegistration,
+        // verifyWebAuthnRegistration: verifyWebAuthnRegistration,
         startWebAuthnLogin: startWebAuthnLogin,
         verifyWebAuthnLogin: verifyWebAuthnLogin,
       }}

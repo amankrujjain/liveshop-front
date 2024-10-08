@@ -1,18 +1,46 @@
-const backendUrl =process.env.NODE_ENV==="production"?"https://liveshop-back.onrender.com":'http://localhost:8000'; 
+const backendUrl = process.env.NODE_ENV === "production" ? "https://liveshop-back.onrender.com" : 'http://localhost:8000';
 
 
-function bufferDecode(value) {
-    console.log("Value coming in the utils logic for decoding:", value);
-    // Ensure padding is correct for Base64
-    const paddingNeeded = 4 - (value.length % 4);
-    const paddedValue = paddingNeeded === 4 ? value : value + "=".repeat(paddingNeeded);
-    return Uint8Array.from(atob(paddedValue), c => c.charCodeAt(0));
+function fromStringToUnit8Array(value) {
+    const encoder = new TextEncoder();
+    const uint8Array = encoder.encode(value);
+    return uint8Array;
 }
 
-// Utility function to encode array buffer to base64 (for sending back binary data as strings)
 function bufferEncode(value) {
-    return btoa(String.fromCharCode(...new Uint8Array(value)));
+    if (!value) {
+        console.error('No value passed to bufferEncode');
+        return '';
+    }
+
+    // Check if the value is already encoded
+    if (typeof value === 'string') {
+        console.log('Value is already a string, no need to encode:', value);
+        return value; // Already encoded string, no need to encode again
+    }
+
+    // Handle ArrayBuffer or Uint8Array
+    if (value instanceof ArrayBuffer) {
+        value = new Uint8Array(value); // Convert ArrayBuffer to Uint8Array
+        console.log('Converting ArrayBuffer to Uint8Array:', value);
+    }
+
+    // Ensure the value is a Uint8Array
+    if (value instanceof Uint8Array) {
+        let binary = '';
+        const len = value.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(value[i]); // Convert each byte to its string representation
+        }
+        console.log('Binary before Base64 encoding:', binary);
+        return btoa(binary); // Base64 encode the binary string
+    } else {
+        console.error('Value is neither a string nor a Uint8Array:', value);
+        return '';
+    }
 }
+
+
 
 // Function to start WebAuthn Registration
 export async function startWebAuthnRegistration(username) {
@@ -28,7 +56,7 @@ export async function startWebAuthnRegistration(username) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ username }),
-            credentials: "include",
+            credentials: "include", // Include cookies
         });
 
         if (!response.ok) {
@@ -38,44 +66,47 @@ export async function startWebAuthnRegistration(username) {
         }
 
         const webAuthnOptions = await response.json();
-        console.log("WebAuthn registration options from server:", webAuthnOptions);
-        
-        // If the ID and challenge are already binary (Uint8Array), no need to decode
-        console.log("Checking if user ID and challenge are binary");
 
+        // Check and convert user ID if necessary
         if (webAuthnOptions.user.id instanceof Uint8Array) {
-            console.log("User ID is already binary");
+            console.log("User ID is already a Uint8Array.");
         } else if (typeof webAuthnOptions.user.id === 'string') {
-            console.log("User ID is in string format, decoding...");
-            webAuthnOptions.user.id = bufferDecode(webAuthnOptions.user.id);
+            console.log("User ID is in string format, converting to Uint8Array...");
+            webAuthnOptions.user.id = fromStringToUnit8Array(webAuthnOptions.user.id);
         }
 
+        // Check and convert challenge if necessary
         if (webAuthnOptions.challenge instanceof Uint8Array) {
-            console.log("Challenge is already binary");
+            console.log("Challenge is already a Uint8Array.");
         } else if (typeof webAuthnOptions.challenge === 'string') {
-            console.log("Challenge is in string format, decoding...");
-            webAuthnOptions.challenge = bufferDecode(webAuthnOptions.challenge);
+            console.log("Challenge is in string format, converting to Uint8Array...");
+            webAuthnOptions.challenge = fromStringToUnit8Array(webAuthnOptions.challenge);
         }
+
+        console.log("WebAuthn registration options from server:", webAuthnOptions);
 
         // WebAuthn registration request using navigator.credentials.create
         const credential = await navigator.credentials.create({
             publicKey: webAuthnOptions,
         });
 
-        console.log("Credentials in WebAuthn utils", credential);
+        console.log("Credentials created in WebAuthn utils:", credential);
 
         // Prepare attestation response to be sent back to the backend
         const attestationResponse = {
             id: credential.id,
-            rawId: bufferEncode(credential.rawId),
+            rawId: bufferEncode(credential.rawId), // Encode to Base64
             response: {
-                clientDataJSON: bufferEncode(credential.response.clientDataJSON),
-                attestationObject: bufferEncode(credential.response.attestationObject),
+                clientDataJSON: bufferEncode(credential.response.clientDataJSON), // Encode to Base64
+                attestationObject: bufferEncode(credential.response.attestationObject), // Encode to Base64
             },
             type: credential.type,
         };
 
-        console.log("Attestation response", attestationResponse);
+        console.log("Attestation Response to be sent:", {
+            username: username,
+            attestationResponse: attestationResponse,
+        });
 
         return attestationResponse;
     } catch (error) {
@@ -85,30 +116,52 @@ export async function startWebAuthnRegistration(username) {
 }
 
 
-// Function to verify WebAuthn registration
 export async function verifyWebAuthnRegistration(username, credential) {
     try {
+        console.log("Verification api details, username---->", username);
+        console.log("Verification api details, raw credentials---->", credential);
+
+        // // Check the rawId before encoding
+        // console.log("Raw ID before encoding:", credential.rawId);
+        // const encodedRawId = bufferEncode(credential.rawId);
+        // console.log("Encoded Raw ID:", encodedRawId);
+
+        // // Check clientDataJSON before encoding
+        // console.log("clientDataJSON before encoding:", credential.response.clientDataJSON);
+        // const encodedClientDataJSON = bufferEncode(credential.response.clientDataJSON);
+        // console.log("Encoded clientDataJSON:", encodedClientDataJSON);
+
+        // // Check attestationObject before encoding
+        // console.log("attestationObject before encoding:", credential.response.attestationObject);
+        // const encodedAttestationObject = bufferEncode(credential.response.attestationObject);
+        // console.log("Encoded attestationObject:", encodedAttestationObject);
+
         // Send the attestation response to the server for verification
         const response = await fetch(`${backendUrl}/register-webauthn/verify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({
                 username: username,
                 attestationResponse: {
                     id: credential.id,
-                    rawId: bufferEncode(credential.rawId),
+                    rawId: credential.rawId, // Encoded rawId
                     response: {
-                        clientDataJSON: bufferEncode(credential.response.clientDataJSON),
-                        attestationObject: bufferEncode(credential.response.attestationObject),
+                        clientDataJSON: credential.response.clientDataJSON, // Encoded clientDataJSON
+                        attestationObject: credential.response.attestationObject, // Encoded attestationObject
                     },
                     type: credential.type,
                 },
             }),
         });
 
+        console.log("Response sent to backend----->", response);
+
         if (!response.ok) {
+            const errorResponse = await response.json();
+            console.error('Failed to verify WebAuthN registration, response:', errorResponse);
             throw new Error('Failed to verify WebAuthN registration.');
         }
 
@@ -122,12 +175,12 @@ export async function verifyWebAuthnRegistration(username, credential) {
 // Function to start WebAuthn Login
 export async function startWebAuthnLogin(options) {
     try {
-        options.challenge = bufferDecode(options.challenge);
+        options.challenge = fromStringToUnit8Array(options.challenge);
 
         if (options.allowCredentials) {
             options.allowCredentials = options.allowCredentials.map((cred) => ({
                 ...cred,
-                id: bufferDecode(cred.id),
+                id: fromStringToUnit8Array(cred.id),
             }));
         }
 
