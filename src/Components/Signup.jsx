@@ -44,18 +44,7 @@ export default function Signup() {
         e.preventDefault();
         if (user.password === user.cpassword) {
             const newUser = {
-                name: user.name,
-                username: user.username,
-                email: user.email,
-                phone: user.phone,
-                password: user.password,
-                addressline1: "",
-                addressline2: "",
-                addressline3: "",
-                pin: "",
-                city: "",
-                state: "",
-                pic: "",
+                ...user,
                 role: "User"
             };
 
