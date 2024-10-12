@@ -1,33 +1,6 @@
-import { startRegistration } from '@simplewebauthn/browser';
+import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 
 const backendUrl = process.env.NODE_ENV === "production" ? "https://liveshop-back.onrender.com" : 'http://localhost:8000';
-
-
-function conversion(value) {
-    // Regular expression to check if the value is base64url (only characters A-Z, a-z, 0-9, -, _)
-    const base64urlRegex = /^[A-Za-z0-9\-_]+$/;
-
-    if (base64urlRegex.test(value)) {
-        console.log("Decoding base64url to Uint8Array...");
-        // Decode base64url string into ArrayBuffer/Uint8Array
-        const decodedStr = atob(value.replace(/-/g, '+').replace(/_/g, '/')); // Base64url decoding
-        return Uint8Array.from(decodedStr, char => char.charCodeAt(0)); // Convert each character to byte (Uint8Array)
-    } else {
-        console.log("Converting regular string to Uint8Array...");
-        const encoder = new TextEncoder();
-        return encoder.encode(value); // Convert regular string to Uint8Array
-    }
-}
-
-
-
-function bufferEncode(value) {
-    if (!value) {
-        return '';
-    }
-    return btoa(String.fromCharCode(...new Uint8Array(value)));
-}
-
 
 
 // Function to start WebAuthn Registration
@@ -128,38 +101,67 @@ export async function verifyWebAuthnRegistration(username, credential) {
 }
 
 // Function to start WebAuthn Login
-export async function startWebAuthnLogin(options) {
+export async function startWebAuthnLogin(username) {
     try {
-        options.challenge = conversion(options.challenge);
-
-        if (options.allowCredentials) {
-            options.allowCredentials = options.allowCredentials.map((cred) => ({
-                ...cred,
-                id: conversion(cred.id),
-            }));
-        }
-
-        // WebAuthn login request using navigator.credentials.get
-        const assertion = await navigator.credentials.get({
-            publicKey: options,
+        // Call the backend to get login (authentication) options
+        const response = await fetch(`${backendUrl}/webauthn/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username }),
+            credentials: "include", // Include cookies
         });
 
-        // Prepare authentication response to be sent back to the backend
-        const authResponse = {
-            id: assertion.id,
-            rawId: bufferEncode(assertion.rawId),
-            response: {
-                clientDataJSON: bufferEncode(assertion.response.clientDataJSON),
-                authenticatorData: bufferEncode(assertion.response.authenticatorData),
-                signature: bufferEncode(assertion.response.signature),
-                userHandle: bufferEncode(assertion.response.userHandle),
-            },
-            type: assertion.type,
-        };
+        if (!response.ok) {
+            const errorBody = await response.json();
+            console.error("Error response from server:", errorBody);
+            throw new Error("An error occurred during login.");
+        }
 
-        return authResponse;
+        const webAuthnOptions = await response.json();
+
+        // Start WebAuthn authentication
+        const assertion = await startAuthentication(webAuthnOptions);
+
+        console.log("Assertion created in WebAuthn:", assertion);
+
+
+        return assertion;
     } catch (error) {
         console.error("WebAuthN Login Error:", error);
+        throw error;
+    }
+}
+
+// Function to verify WebAuthn Login (Authentication Verification)
+export async function verifyWebAuthnLogin(username, authResponse) {
+    try {
+        console.log("Login Verification API details, username:", username);
+        console.log("Login Verification API details, raw authResponse:", authResponse);
+
+        // Send the authentication response to the backend without any frontend encoding
+        const response = await fetch(`${backendUrl}/login-webauthn/verify`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                username: username,
+                authResponse:authResponse,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            console.error('Failed to verify WebAuthN login, response:', errorResponse);
+            throw new Error('Failed to verify WebAuthN login.');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("WebAuthN Login Verification Error:", error);
         throw error;
     }
 }

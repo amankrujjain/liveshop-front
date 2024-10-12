@@ -99,7 +99,7 @@ export default function App() {
         if (!isLoggedIn) {
             return <Navigate to="/login" />;
         }
-        if (adminOnly && role !== 'Admin') {
+        if (role !== 'Admin') {
             return <Navigate to="/profile" />;
         }
         return children;

@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User } from "../Store/UserContextProvider";
 import pic from "../assets/images/login.jpg";
+import { startWebAuthnLogin, verifyWebAuthnLogin } from '../utils/WebAuthnUtils'; // Imported the utils
 
 export default function Login() {
     const [user, setUser] = useState({
@@ -20,11 +21,17 @@ export default function Login() {
         }));
     }
 
-    // Function to handle login
+    // Function to handle password-based login
     async function postData(e) {
         e.preventDefault();
 
         try {
+            // Validate that both username and password are provided for normal login
+            if (!user.username || !user.password) {
+                alert("Username and Password are required for normal login.");
+                return;
+            }
+
             const response = await login(user); // Assuming login returns a response with token and user data
 
             if (response.result === "Done") {
@@ -49,6 +56,46 @@ export default function Login() {
         } catch (error) {
             console.error("Login Error:", error);
             alert("An error occurred while logging in. Please try again.");
+        }
+    }
+
+    // Function to handle WebAuthn device login (passwordless login)
+    async function loginWithDevice() {
+        try {
+            if (!user.username) {
+                alert("Please enter your username before using device login.");
+                return;
+            }
+
+            // Start WebAuthn login (authentication)
+            const authResponse = await startWebAuthnLogin(user.username);
+
+            // Send the authentication response to the server for verification
+            const verificationResponse = await verifyWebAuthnLogin(user.username, authResponse);
+
+            console.log("Inside login jsx verification response", verificationResponse)
+
+            if (verificationResponse.verified) {
+                // Store relevant details in localStorage upon successful verification
+                localStorage.setItem("login", "true");
+                localStorage.setItem("username", verificationResponse.data.username);
+                localStorage.setItem("name", verificationResponse.data.name);
+                localStorage.setItem("userid", verificationResponse.data._id);
+                localStorage.setItem("role", verificationResponse.data.role);
+                localStorage.setItem("token", verificationResponse.token);
+
+                // Redirect based on the user's role
+                if (verificationResponse.data.role === "Admin") {
+                    navigate("/admin-home");
+                } else {
+                    navigate("/profile");
+                }
+            } else {
+                alert("Authentication failed, please try again.");
+            }
+        } catch (error) {
+            console.error("WebAuthn Login Error:", error);
+            alert("An error occurred while logging in with device. Please try again.");
         }
     }
 
@@ -79,11 +126,21 @@ export default function Login() {
                                 className="form-control"
                                 name="password"
                                 onChange={getData}
-                                placeholder='Enter Your Password'
-                                required
+                                placeholder='Enter Your Password (or leave blank for device login)'
                             />
                         </div>
+                        {/* Normal login (username and password) */}
                         <button type="submit" className="background text-light mybtn w-100 p-1">Login</button>
+
+                        {/* WebAuthn Device Login (Passwordless Login) */}
+                        <button 
+                            type="button" 
+                            className="background text-light mybtn mt-4 w-100 p-1"
+                            onClick={loginWithDevice}
+                        >
+                            Login With Device
+                        </button>
+
                         <div className='d-flex justify-content-between mt-2'>
                             <Link to="/forget-password-username" className='text-decoration-none'>Forget Password</Link>
                             <Link to="/signup" className='text-decoration-none'>New User? Create a Free Account</Link>
