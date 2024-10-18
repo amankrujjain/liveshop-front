@@ -95,57 +95,42 @@ async function getSingleUser() {
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("username");
 
-    // Log the token, userId, and username to make sure they are being retrieved correctly
-    console.log("getSingleUser: userId from localStorage:", userId);
-    console.log("getSingleUser: token from localStorage:", token);
-    console.log("getSingleUser: username from localStorage:", username);
-
     // Check if userId or token is missing
     if (!userId || !token) {
-      console.error("Missing user ID or authentication token");
       throw new Error("Missing user ID or authentication token");
     }
 
-    // Perform the fetch request
     const response = await fetch(`${backendUrl}/user/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-        username: username, // Include the username in the headers
+        Authorization: `Bearer ${token}`, // Add 'Bearer ' prefix to the token
+        username: username,
       },
       credentials: "include",
     });
-
-    // Log the response status to see if it's 200, 401, or some other code
-    console.log("API response status from getSingleUser:", response.status);
 
     // Handle non-200 responses
     if (!response.ok) {
       // Check for specific status codes and return meaningful errors
       if (response.status === 401) {
-        console.error("Unauthorized: Invalid or missing token");
         throw new Error("Unauthorized: Invalid or missing token");
       } else if (response.status === 404) {
-        console.error("User not found");
         throw new Error("User not found");
       } else {
-        console.error(`Error: ${response.status} - ${response.statusText}`);
         throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
     }
 
-    // Parse and log the response data
+    // Parse the response data
     const data = await response.json();
-    console.log("User data retrieved:", data);
     return data;
   } catch (error) {
-    // Log and return the error message for debugging purposes
+    // Log and return the error message
     console.error("Error while fetching the user:", error.message);
     return { error: error.message };
   }
 }
-
 
 async function deleteUser(item) {
   try {
