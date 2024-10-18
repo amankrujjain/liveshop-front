@@ -95,42 +95,57 @@ async function getSingleUser() {
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("username");
 
+    // Log the token, userId, and username to make sure they are being retrieved correctly
+    console.log("getSingleUser: userId from localStorage:", userId);
+    console.log("getSingleUser: token from localStorage:", token);
+    console.log("getSingleUser: username from localStorage:", username);
+
     // Check if userId or token is missing
     if (!userId || !token) {
+      console.error("Missing user ID or authentication token");
       throw new Error("Missing user ID or authentication token");
     }
 
+    // Perform the fetch request
     const response = await fetch(`${backendUrl}/user/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Add 'Bearer ' prefix to the token
-        username: username,
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        username: username, // Include the username in the headers
       },
       credentials: "include",
     });
+
+    // Log the response status to see if it's 200, 401, or some other code
+    console.log("API response status from getSingleUser:", response.status);
 
     // Handle non-200 responses
     if (!response.ok) {
       // Check for specific status codes and return meaningful errors
       if (response.status === 401) {
+        console.error("Unauthorized: Invalid or missing token");
         throw new Error("Unauthorized: Invalid or missing token");
       } else if (response.status === 404) {
+        console.error("User not found");
         throw new Error("User not found");
       } else {
+        console.error(`Error: ${response.status} - ${response.statusText}`);
         throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
     }
 
-    // Parse the response data
+    // Parse and log the response data
     const data = await response.json();
+    console.log("User data retrieved:", data);
     return data;
   } catch (error) {
-    // Log and return the error message
+    // Log and return the error message for debugging purposes
     console.error("Error while fetching the user:", error.message);
     return { error: error.message };
   }
 }
+
 
 async function deleteUser(item) {
   try {
@@ -160,132 +175,6 @@ async function deleteUser(item) {
   }
 }
 
-// async function startWebAuthnRegistration(username) {
-//   try {
-//     if (!username) {
-//       throw new Error("Username is missing or incorrect.");
-//     }
-
-//     const response = await fetch(`${backendUrl}/register-webauthn/start`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({ username }),
-//       credentials: "include",
-//     });
-
-//     if (!response.ok) {
-//       // Log the error body for better debugging
-//       const errorBody = await response.json();
-//       console.error("Error response from server:", errorBody);
-//       throw new Error("An error occurred while registering the user.");
-//     }
-
-//     const data = await response.json();
-//     console.log("WebAuthn registration options from server:", data);
-
-//     return data; // This contains the options for navigator.credentials.create
-//   } catch (error) {
-//     console.error("Error during WebAuthN registration start:", error.message);
-//     return { error: error.message };
-//   }
-// }
-
-
-// // WebAuthN Registration Verification
-// async function verifyWebAuthnRegistration(username, attestationResponse) {
-//   try {
-//     if (!username || !attestationResponse) {
-//       throw new Error(
-//         "Username or attestation response is missing, registration verification failed."
-//       );
-//     }
-
-//     const response = await fetch(`${backendUrl}/register-webauthn/verify`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         "username": username
-//       },
-//       body: JSON.stringify({ username, attestationResponse }),
-//       credentials: "include",
-//     });
-
-//     if (!response.ok) {
-//       const errorBody = await response.json();
-//       console.error("Error response from server:", errorBody);
-//       throw new Error("Failed to verify the registered user.");
-//     }
-
-//     return await response.json();
-//   } catch (error) {
-//     console.error("Error during WebAuthN registration verification:", error.message);
-//     return { error: error.message };
-//   }
-// }
-
-// WebAuthN Login Start
-async function startWebAuthnLogin(username) {
-  try {
-    if (!username) {
-      throw new Error("Username is required for login.");
-    }
-
-    const response = await fetch(`${backendUrl}/webauthn/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "username":username
-      },
-      body: JSON.stringify({ username }),
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      const errorBody = await response.json();
-      console.error("Error response from server:", errorBody);
-      throw new Error("An error occurred during login initiation.");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error during WebAuthN login start:", error.message);
-    return { error: error.message };
-  }
-}
-
-// WebAuthN Login Verification
-async function verifyWebAuthnLogin(username, authResponse) {
-  try {
-    if (!username || !authResponse) {
-      throw new Error(
-        "Username or authentication response is missing, verification failed."
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/login-webauthn/verify`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "username":username
-      },
-      body: JSON.stringify({ username, authResponse }),
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      const errorBody = await response.json();
-      console.error("Error response from server:", errorBody);
-      throw new Error("WebAuthN login verification failed.");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error during WebAuthN login verification:", error.message);
-    return { error: error.message };
-  }
-}
 
 export default function UserContextProvider(props) {
   return (
@@ -297,10 +186,7 @@ export default function UserContextProvider(props) {
         deleteData: deleteUser,
         getSingle: getSingleUser,
         update: updateUser,
-        // startWebAuthnRegisteration: startWebAuthnRegistration,
-        // verifyWebAuthnRegistration: verifyWebAuthnRegistration,
-        startWebAuthnLogin: startWebAuthnLogin,
-        verifyWebAuthnLogin: verifyWebAuthnLogin,
+
       }}
     >
       {props.children}
