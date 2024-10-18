@@ -69,8 +69,6 @@ export async function verifyWebAuthnRegistration(username, credential) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                "getSetCookie":"thisiscookies",
-                "cookies":"dummy"
             },
             credentials: 'include',
             body: JSON.stringify({
