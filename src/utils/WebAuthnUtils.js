@@ -17,8 +17,9 @@ export async function startWebAuthnRegistration(username) {
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials: 'include',
             body: JSON.stringify({ username }),
-            credentials: "include", // Include cookies
+    
         });
 
         if (!response.ok) {
