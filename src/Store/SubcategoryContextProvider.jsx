@@ -1,18 +1,48 @@
 import React,{createContext} from "react"
-
+const backendUrl = 'http://localhost:8000';
 export const Subcategory = createContext()
-async function addSubcategory(item){
-    var rawdata = await fetch("/subcategory",{
-        method:"post",
-        headers:{
-            "content-type":"application/json",
-            "authorization": localStorage.getItem("token"),
-            "username": localStorage.getItem("username")
+async function addSubcategory(item) {
+    try {
+      const token = localStorage.getItem("token");
+  
+      // Check if the token exists
+      if (!token) {
+        throw new Error("Authorization token is missing. Please log in.");
+      }
+  
+      // Make the API request
+      const response = await fetch(`${backendUrl}/subcategory`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        body:JSON.stringify(item)
-    })
-    return await rawdata.json()
-}
+        body: JSON.stringify(item),
+      });
+  
+      // Check if the response is successful
+      const contentType = response.headers.get("content-type");
+      if (!response.ok) {
+        const errorData = contentType && contentType.includes("application/json")
+          ? await response.json()
+          : await response.text();
+        console.log("Error from server:", errorData);
+        throw new Error(errorData.message || "Failed to create subcategory");
+      }
+  
+      // If the response is successful, return the JSON data
+      const data = contentType && contentType.includes("application/json")
+        ? await response.json()
+        : null;
+  
+      console.log("Subcategory created successfully:", data);
+      return data;
+    } catch (error) {
+      console.error("Error occurred while creating subcategory:", error);
+      return { error: error.message };
+    }
+  }
+  
 async function updateSubcategory(item){
     var rawdata = await fetch("/subcategory/"+item._id,{
         method:"put",

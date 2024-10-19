@@ -1,42 +1,55 @@
 import React, { createContext } from "react";
+const backendUrl = 'http://localhost:8000';
+
+console.log('env for production url', process.env.REACT_APP_PRODUCTION_BACKEND_URL);
+console.log("backend url",backendUrl)
 
 export const Maincategory = createContext();
 async function addMaincategory(item) {
   try {
     const token = localStorage.getItem("token");
-    const username = localStorage.getItem("username");
 
-    if(!token || !username){
-        throw new Error("Missing token or username");
-    };
+    if (!token) {
+      throw new Error("Missing token");
+    }
 
-    var rawdata = await fetch("/maincategory", {
+    const response = await fetch(`${backendUrl}/maincategory`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        username: username,
       },
       body: JSON.stringify(item),
     });
 
-    if(!rawdata.ok){
-        throw new Error("Unauthorized: Invalid token or missing token");
+    console.log("Response status:", response.status);
+
+    // Read the response body only once
+    const data = await response.json();
+
+    // Handle non-OK responses (like 401, 403, or 500)
+    if (!response.ok) {
+      console.log("Error Data from server ===>", data);
+      throw new Error(data.message || "Something went wrong");
     }
 
-    return await rawdata.json();
+    // If successful, return the parsed JSON data
+    console.log("Maincategory created successfully:", data);
+    return data;
   } catch (error) {
-    console.log('Error occured while creating maincategory:',error);
-    return {error: error.message}
+    console.log("Error occurred while creating maincategory:", error);
+    return { error: error.message };
   }
 }
+
+
+
 async function updateMaincategory(item) {
   var rawdata = await fetch("/maincategory/" + item._id, {
     method: "put",
     headers: {
-      "content-type": "application/json",
-      authorization: localStorage.getItem("token"),
-      username: localStorage.getItem("username"),
+      "Content-Type": "application/json",
+      "Authorization": localStorage.getItem("token")
     },
     body: JSON.stringify(item),
   });

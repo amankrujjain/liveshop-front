@@ -1,43 +1,89 @@
-import React, { useState,useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import "../assets/css/style.css";
+const backendUrl =process.env.NODE_ENV==="production"?"https://liveshop-back.onrender.com":'http://localhost:8000'; 
 
-import "../assets/css/style.css"
-
-import { useNavigate } from 'react-router-dom'
 export default function Navbar() {
-    var [search,setsearch] = useState("")
-    var navigate = useNavigate()
-    function getData(e){
-        setsearch(e.target.value)
+    const [search, setSearch] = useState("");
+    const navigate = useNavigate();
+
+    function getData(e) {
+        setSearch(e.target.value);
     }
-    function postData(e){
-        e.preventDefault()
-        navigate("/shop/All/All/All/"+search)
-        setsearch("")
+
+    function postData(e) {
+        e.preventDefault();
+        navigate("/shop/All/All/All/" + search);
+        setSearch("");
     }
+
     async function logout() {
-        var response = await fetch("/logout",{
-            method:"post",
-            headers:{
-                "content-type":"application/json"
-            },
-            body:JSON.stringify({username:localStorage.getItem("username"),token:localStorage.getItem("token")})
-        })
-        localStorage.clear()
-        navigate("/login")
+        try {
+            const token = localStorage.getItem("token");
+            const username = localStorage.getItem("username");
+
+            console.log(token)
+            console.log(username)
+            const response = await fetch(`${backendUrl}/logout`, {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    token: token
+                })
+            });
+
+            const data = await response.json();
+
+            // Check if the logout was successful
+            if (response.ok && data.result === "Done") {
+                localStorage.clear();
+                navigate("/login");
+            } else {
+                alert("Failed to log out: " + data.message); // You can handle this error message better in UI.
+            }
+        } catch (error) {
+            console.error("Logout Error:", error);
+            alert("An error occurred during logout. Please try again.");
+        }
     }
+
     async function logoutAll() {
-        var response = await fetch("/logoutall",{
-            method:"post",
-            headers:{
-                "content-type":"application/json"
-            },
-            body:JSON.stringify({username:localStorage.getItem("username"),token:localStorage.getItem("token")})
-        })
-        localStorage.clear()
-        navigate("/login")
+        try {
+            const token = localStorage.getItem("token");
+            const username = localStorage.getItem("username");
+            console.log(token)
+            console.log(username)
+            const response = await fetch(`${backendUrl}/logoutall`, {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    token: token
+                })
+            });
+
+            const data = await response.json();
+
+            // Check if the logout-all was successful
+            if (response.ok && data.result === "Done") {
+                localStorage.clear();
+                navigate("/login");
+            } else {
+                alert("Failed to log out from all devices: " + data.message); // Handle error message.
+            }
+        } catch (error) {
+            console.error("Logout All Error:", error);
+            alert("An error occurred during logout from all devices. Please try again.");
+        }
     }
-    useEffect(() => { })
+
+    useEffect(() => { }, []);
+
     return (
         <nav className="navbar navbar-expand-lg background sticky-top">
             <div className="container-fluid">
@@ -58,7 +104,7 @@ export default function Navbar() {
                         </li>
                     </ul>
                     <form className="d-flex" role="search" onSubmit={postData}>
-                        <input className="form-control me-2" type="search" name='search' onChange={getData} placeholder="Search" aria-label="Search" value={search}/>
+                        <input className="form-control me-2" type="search" name='search' onChange={getData} placeholder="Search" aria-label="Search" value={search} />
                         <button className="btn btn-outline-light" type="submit">Search</button>
                     </form>
                     <div>
@@ -71,9 +117,9 @@ export default function Navbar() {
                                         </Link>
                                         <ul className="dropdown-menu">
                                             {
-                                                localStorage.getItem("role")==="Admin"?
-                                                <li><Link className="dropdown-item" to="/admin-home">Profile</Link></li>:
-                                                <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
+                                                localStorage.getItem("role") === "Admin" ?
+                                                    <li><Link className="dropdown-item" to="/admin-home">Profile</Link></li> :
+                                                    <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
                                             }
                                             <li><Link className="dropdown-item" to="/cart">Cart</Link></li>
                                             <li><hr className="dropdown-divider" /></li>
@@ -90,5 +136,5 @@ export default function Navbar() {
                 </div>
             </div>
         </nav>
-    )
+    );
 }
