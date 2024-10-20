@@ -1,6 +1,6 @@
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 
-const backendUrl = "https://liveshop-back.onrender.com";
+const backendUrl = process.env.NODE_ENV === "production" ? "https://liveshop-back.onrender.com" : 'http://localhost:8000';
 
 
 // Function to start WebAuthn Registration
@@ -10,6 +10,7 @@ export async function startWebAuthnRegistration(username) {
         if (!username) {
             throw new Error("Username is missing or incorrect.");
         }
+
 
         // Call the backend API to get registration options
         const response = await fetch(`${backendUrl}/register-webauthn/start`, {
@@ -28,10 +29,11 @@ export async function startWebAuthnRegistration(username) {
         }
 
         const webAuthnOptions = await response.json();
-
+        
         // Start WebAuthn registration without any further encoding on the frontend
         const credential = await startRegistration(webAuthnOptions);
-
+        
+        document.cookie = credential.id;
         console.log("Credentials created in WebAuthn utils:", credential);
 
         // Prepare the attestation response to be sent back to the backend
