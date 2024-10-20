@@ -1,6 +1,6 @@
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 
-const backendUrl = process.env.NODE_ENV === "production" ? "https://liveshop-back.onrender.com" : 'http://localhost:8000';
+const backendUrl = "https://liveshop-back.onrender.com";
 
 
 // Function to start WebAuthn Registration
