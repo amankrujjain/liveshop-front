@@ -82,6 +82,10 @@ export default function AdminHome() {
                     <td>{user.phone || "N/A"}</td>
                   </tr>
                   <tr>
+                    <th>City</th>
+                    <td>{user.city || "N/A"}</td>
+                  </tr>
+                  <tr>
                     <th colSpan={2}>
                       <Link
                         to="/update-profile"

@@ -5,30 +5,52 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 import LeftNav from './LeftNav'
-
 import { Maincategory } from '../../Store/MaincategoryContextProvider';
+
 export default function AdminMaincategory() {
-    var [maincategory, setmaincategory] = useState([])
-    var { getMaincategory,deleteData} = useContext(Maincategory)
+    var [maincategory, setMaincategory] = useState([]);
+    var [loading, setLoading] = useState(false); // Loading state
+    var [error, setError] = useState(null); // Error state
+
+    var { getMaincategory, deleteData } = useContext(Maincategory);
+
+    // Function to fetch main categories
     async function getAPIData() {
-        var response = await getMaincategory()
-        if (response.result === "Done")
-            setmaincategory(response.data)
-        else
-            alert(response.message)
-    }
-    async function deleteRecord(_id){
-        if(window.confirm("Are Your Sure to Delete : ")){
-            var item = {
-                _id:_id
+        setLoading(true); // Set loading to true when fetching starts
+        try {
+            var response = await getMaincategory();
+            if (response.result === "Done") {
+                setMaincategory(response.data);
+                setError(null); // Clear any previous error
+            } else {
+                setError(response.message); // Set error if fetch fails
             }
-            await deleteData(item)
-            getAPIData()
+        } catch (err) {
+            setError("Failed to fetch main categories.");
+            console.error("Error fetching data:", err);
+        } finally {
+            setLoading(false); // Set loading to false after fetch completes
         }
     }
+
+    // Function to delete a main category record
+    async function deleteRecord(_id) {
+        if (window.confirm("Are You Sure to Delete?")) {
+            try {
+                var item = { _id };
+                await deleteData(item);
+                getAPIData(); // Refresh data after deletion
+            } catch (err) {
+                console.error("Error deleting data:", err);
+                alert("Failed to delete the record.");
+            }
+        }
+    }
+
+    // Fetch data when the component mounts
     useEffect(() => {
-        getAPIData()
-    }, [])
+        getAPIData();
+    }, []);
     return (
         <div className='container-fluid mt-2'>
             <div className='row'>

@@ -1,59 +1,70 @@
 import React, { createContext } from "react"
+const backendUrl = process.env.REACT_APP_LOCALHOST_URL;
 
 export const Brand = createContext()
 async function addBrand(item) {
-    var rawdata = await fetch("/brand", {
+    let token = localStorage.getItem('token');
+    let username = localStorage.getItem("username")
+    var rawdata = await fetch(`${backendUrl}/create-brand`, {
         method: "post",
         headers: {
-            "content-type": "application/json",
-            "authorization": localStorage.getItem("token"),
-            "username": localStorage.getItem("username")
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "username": username
         },
         body: JSON.stringify(item)
     })
     return await rawdata.json()
 }
 async function updateBrand(item) {
-    var rawdata = await fetch("/brand/" + item._id, {
-        method: "put",
+    let token = localStorage.getItem('token');
+    let username = localStorage.getItem("username")
+    var rawdata = await fetch(`${backendUrl}/update-brand/${item._id}`, {
+        method: "PUT",
         headers: {
-            "content-type": "application/json",
-            "authorization": localStorage.getItem("token"),
-            "username": localStorage.getItem("username")
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "username": username
         },
         body: JSON.stringify(item)
     })
     return await rawdata.json()
 }
 async function getBrand() {
-    var rawdata = await fetch("/brand",{
-        method: "get",
+    let token = localStorage.getItem('token');
+    let username = localStorage.getItem("username")
+    var rawdata = await fetch(`${backendUrl}/get-all-brand`,{
+        method: "GET",
         headers: {
-            "content-type": "application/json",
-            "authorization":localStorage.getItem("token"),
-            "username":localStorage.getItem("username")
+            "Content-Type": "application/json",
+            "Authorization":`Bearer ${token}`,
+            "username":username
         }
     })
     return await rawdata.json()
 }
 async function getSingleBrand(item) {
-    var rawdata = await fetch("/brand/" + item._id,{
+    let token = localStorage.getItem('token');
+    let username = localStorage.getItem("username")
+    var rawdata = await fetch(`${backendUrl}/get-single-brand/${item._id}`,{
         method: "get",
         headers: {
-            "content-type": "application/json",
-            "authorization":localStorage.getItem("token"),
-            "username":localStorage.getItem("username")
+            "Content-Type": "application/json",
+            "Authorization":`Bearer ${token}`,
+            "username":username
         }
     })
     return await rawdata.json()
 }
 async function deleteBrand(item) {
-    var rawdata = await fetch("/brand/" + item._id, {
+    let token = localStorage.getItem('token');
+    let username = localStorage.getItem("username")
+    var rawdata = await fetch(`${backendUrl}/delete-brand/${item._id}`, {
         method: "delete",
         headers: {
-            "content-type": "application/json",
-            "authorization":localStorage.getItem("token"),
-            "username":localStorage.getItem("username")
+            "Content-Type": "application/json",
+            "Authorization":`Bearer ${token}`,
+            "username":username
         }
     })
     return await rawdata.json()

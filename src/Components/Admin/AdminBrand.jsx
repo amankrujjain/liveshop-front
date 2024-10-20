@@ -43,8 +43,8 @@ export default function AdminBrand() {
                                 <tr>
                                     <th>Id</th>
                                     <th>Name</th>
-                                    <th></th>
-                                    <th></th>
+                                    <th>Update Brand</th>
+                                    <th>Delete Brand</th>
                                 </tr>
                                 {
                                     brand.map((item, index) => {

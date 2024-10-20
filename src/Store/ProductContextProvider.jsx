@@ -1,13 +1,18 @@
-import React, { createContext } from "react"
+import React, { createContext } from "react";
+const backendUrl = process.env.REACT_APP_LOCALHOST_URL;
 
 export const Product = createContext()
 async function addProduct(item) {
-    var rawdata = await fetch("/product", {
+    let token = localStorage.getItem('token');
+    let username = localStorage.getItem("username")
+    var rawdata = await fetch(`${backendUrl}/create-product`, {
         method: "post",
         headers: {
-            "authorization": localStorage.getItem("token"),
-            "username": localStorage.getItem("username")
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "username": username
         },
+        credentials: 'include',
         body:item
     })
     return await rawdata.json()
@@ -25,13 +30,15 @@ async function updateProduct(item,_id) {
     console.log(item._id);
     return await rawdata.json()
 }
-async function getProduct(item) {
-    var rawdata = await fetch("/product",{
+async function getProduct() {
+    let token = localStorage.getItem('token');
+    let username = localStorage.getItem("username")
+    var rawdata = await fetch(`${backendUrl}/get-all-product`,{
         method: "get",
         headers: {
-            "content-type": "application/json",
-            "authorization":localStorage.getItem("token"),
-            "username":localStorage.getItem("username")
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "username": username
         }
     })
     return await rawdata.json()

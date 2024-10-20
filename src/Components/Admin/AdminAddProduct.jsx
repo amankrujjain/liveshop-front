@@ -3,7 +3,7 @@ import React, { useState, useContext, useEffect } from 'react'
 import LeftNav from './LeftNav'
 
 import { useNavigate } from 'react-router-dom'
-import ProductContextProvider, { Product } from '../../Store/ProductContextProvider'
+import { Product } from '../../Store/ProductContextProvider'
 import { Maincategory } from '../../Store/MaincategoryContextProvider'
 import { Subcategory } from '../../Store/SubcategoryContextProvider'
 import { Brand } from '../../Store/BrandContextProvider'
@@ -54,38 +54,54 @@ export default function AdminAddProduct() {
         })
     }
     async function postData(e) {
-        e.preventDefault()
-        var fp = product.baseprice-product.baseprice*product.discount/100
-        var item = new FormData()
-        item.append('name',product.name)
-        item.append('maincategory', product.maincategory)
-        item.append('subcategory', product.subcategory)
-        item.append('brand', product.name)
-        item.append('color', product.color)
-        item.append('size', product.size)
-        item.append('stock', product.stock)
-        item.append('description', product.description)
-        item.append('baseprice', product.baseprice)
-        item.append('discount', product.discount)
-        item.append('finalprice', fp)
-        item.append('pic1', product.pic1)
-        item.append('pic2', product.pic2)
-        item.append('pic3', product.pic3)
-        item.append('pic4', product.pic4)
-        const response = await add(item)
-        if (response.result === "Done")
-            navigate("/admin-product")
-        else
-            alert(response.message)
+        e.preventDefault();
+        try {
+            // Calculate final price
+            const fp = product.baseprice - product.baseprice * product.discount / 100;
+    
+            // Create FormData object and append fields
+            const item = new FormData();
+            item.append('name', product.name);
+            item.append('maincategory', product.maincategory);
+            item.append('subcategory', product.subcategory);
+            item.append('brand', product.brand);  // Fixed: should append `brand` instead of `name`
+            item.append('color', product.color);
+            item.append('size', product.size);
+            item.append('stock', product.stock);
+            item.append('description', product.description);
+            item.append('baseprice', product.baseprice);
+            item.append('discount', product.discount);
+            item.append('finalprice', fp);
+    
+            // Append files only if they exist
+            if (product.pic1) item.append('pic1', product.pic1);
+            if (product.pic2) item.append('pic2', product.pic2);
+            if (product.pic3) item.append('pic3', product.pic3);
+            if (product.pic4) item.append('pic4', product.pic4);
+    
+            // Send FormData to the backend
+            const response = await add(item);
+    
+            // Check response status before proceeding
+            if (response.result === "Done") {
+                navigate("/admin-product");
+            } else {
+                alert(response.message);
+            }
+        } catch (error) {
+            console.error("Error during product creation:", error);
+            alert("Something went wrong. Please try again.");
+        }
     }
+    
     async function getAPIData() {
         var response = await getMaincategory()
-        if (response.result === "Done"){
+        if (response.result === "Done") {
             setmaincategory(response.data)
             setproduct((oldData) => {
                 return {
                     ...oldData,
-                    ['maincategory']: response.data[0].name
+                    maincategory: response.data[0].name
                 }
             })
         }
@@ -93,12 +109,12 @@ export default function AdminAddProduct() {
             alert(response.message)
 
         response = await getSubcategory()
-        if (response.result === "Done"){
+        if (response.result === "Done") {
             setsubcategory(response.data)
             setproduct((oldData) => {
                 return {
                     ...oldData,
-                    ['subcategory']: response.data[0].name
+                    subcategory: response.data[0].name
                 }
             })
         }
@@ -106,12 +122,12 @@ export default function AdminAddProduct() {
             alert(response.message)
 
         response = await getBrand()
-        if (response.result === "Done"){
+        if (response.result === "Done") {
             setbrand(response.data)
             setproduct((oldData) => {
                 return {
                     ...oldData,
-                    ['brand']: response.data[0].name
+                    brand: response.data[0].name
                 }
             })
         }
@@ -137,31 +153,27 @@ export default function AdminAddProduct() {
                         <div className='row mb-3'>
                             <div className="col-md-3 col-sm-6 col-12">
                                 <label className="form-label">Maincategory</label>
-                                <select name="maincategory" onChange={getData} className="form-select">
+                                <select name="maincategory" onChange={getData} className="form-select" value={product.maincategory}>
                                     {
-                                        maincategory.map((item, index) => {
-                                            return <option key={index} value={item.value}>{item.name}</option>
-                                        })
+                                        maincategory.map((item, index) => (
+                                            <option key={index} value={item.name}>{item.name}</option> // Use item.name for value
+                                        ))
                                     }
                                 </select>
-                            </div>
-                            <div className="col-md-3 col-sm-6 col-12">
-                                <label className="form-label">Subcategory</label>
-                                <select name="subcategory" onChange={getData} className="form-select">
+
+                                <select name="subcategory" onChange={getData} className="form-select" value={product.subcategory}>
                                     {
-                                        subcategory.map((item, index) => {
-                                            return <option key={index} value={item.value}>{item.name}</option>
-                                        })
+                                        subcategory.map((item, index) => (
+                                            <option key={index} value={item.name}>{item.name}</option> // Use item.name for value
+                                        ))
                                     }
                                 </select>
-                            </div>
-                            <div className="col-md-3 col-sm-6 col-12">
-                                <label className="form-label">Brand</label>
-                                <select name="brand" onChange={getData} className="form-select">
+
+                                <select name="brand" onChange={getData} className="form-select" value={product.brand}>
                                     {
-                                        brand.map((item, index) => {
-                                            return <option key={index} value={item.value}>{item.name}</option>
-                                        })
+                                        brand.map((item, index) => (
+                                            <option key={index} value={item.name}>{item.name}</option> // Use item.name for value
+                                        ))
                                     }
                                 </select>
                             </div>
