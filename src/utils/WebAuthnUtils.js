@@ -19,7 +19,7 @@ export async function startWebAuthnRegistration(username) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ username }),
-            credentials: "include", // Include cookies
+            // credentials: "include", // Include cookies
         });
 
         if (!response.ok) {
@@ -91,7 +91,7 @@ export async function verifyWebAuthnRegistration(username, credential) {
                     type: credential.type,  // No conversion needed, pass as-is
                 },
             }),
-            credentials: 'include',
+            // credentials: 'include',
         });
 
         console.log("Response sent to backend:", response);
@@ -119,7 +119,7 @@ export async function startWebAuthnLogin(username) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ username }),
-            credentials: "include", // Include cookies
+            // credentials: "include", // Include cookies
         });
 
         if (!response.ok) {
