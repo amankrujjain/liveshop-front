@@ -28,12 +28,13 @@ export async function startWebAuthnRegistration(username) {
             throw new Error("An error occurred while registering the user.");
         }
 
-        const webAuthnOptions = await response.json();
+        const {webAuthnOptions, sessionID} = await response.json();
+
+        localStorage.setItem("SessionID", sessionID);
         
         // Start WebAuthn registration without any further encoding on the frontend
         const credential = await startRegistration(webAuthnOptions);
         
-        document.cookie = credential.id;
         console.log("Credentials created in WebAuthn utils:", credential);
 
         // Prepare the attestation response to be sent back to the backend
@@ -66,14 +67,19 @@ export async function verifyWebAuthnRegistration(username, credential) {
         console.log("Verification API details, username:", username);
         console.log("Verification API details, raw credentials:", credential);
 
+        const sessionID = localStorage.getItem('sessionID');
+        if (!sessionID) {
+            throw new Error("Session ID missing. Registration might not have been initiated correctly.");
+        }
         // Send the attestation response to the backend without any frontend encoding
         const response = await fetch(`${backendUrl}/register-webauthn/verify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include',
+           
             body: JSON.stringify({
+                sessionID:sessionID,
                 username: username,
                 attestationResponse: {
                     id: credential.id,  // Already a string
@@ -85,6 +91,7 @@ export async function verifyWebAuthnRegistration(username, credential) {
                     type: credential.type,  // No conversion needed, pass as-is
                 },
             }),
+            credentials: 'include',
         });
 
         console.log("Response sent to backend:", response);
