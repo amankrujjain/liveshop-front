@@ -28,12 +28,13 @@ export async function startWebAuthnRegistration(username) {
             throw new Error("An error occurred while registering the user.");
         }
 
-        const {webAuthnOptions, sessionID} = await response.json();
+        const {options, sessionID} = await response.json();
 
         localStorage.setItem("SessionID", sessionID);
+        console.log("options", options)
         
         // Start WebAuthn registration without any further encoding on the frontend
-        const credential = await startRegistration(webAuthnOptions);
+        const credential = await startRegistration(options);
         
         console.log("Credentials created in WebAuthn utils:", credential);
 
