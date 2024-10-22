@@ -21,9 +21,12 @@ export default function Navbar() {
         try {
             const token = localStorage.getItem("token");
             const username = localStorage.getItem("username");
-
-            console.log(token)
-            console.log(username)
+            const sessionID = localStorage.getItem("SessionID");  // Retrieve sessionID from localStorage
+    
+            console.log(token);
+            console.log(username);
+            console.log(sessionID);
+    
             const response = await fetch(`${backendUrl}/logout`, {
                 method: "POST",
                 headers: {
@@ -31,25 +34,26 @@ export default function Navbar() {
                 },
                 body: JSON.stringify({
                     username: username,
-                    token: token
+                    token: token,
+                    sessionID: sessionID  // Include sessionID in the logout request
                 })
             });
-
+    
             const data = await response.json();
-
+    
             // Check if the logout was successful
             if (response.ok && data.result === "Done") {
-                localStorage.clear();
-                navigate("/login");
+                localStorage.clear();  // Clear localStorage after logout
+                navigate("/login");    // Redirect user to login page
             } else {
-                alert("Failed to log out: " + data.message); // You can handle this error message better in UI.
+                alert("Failed to log out: " + data.message); // Handle the error message in UI
             }
         } catch (error) {
             console.error("Logout Error:", error);
             alert("An error occurred during logout. Please try again.");
         }
     }
-
+    
     async function logoutAll() {
         try {
             const token = localStorage.getItem("token");
