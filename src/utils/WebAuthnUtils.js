@@ -68,10 +68,11 @@ export async function verifyWebAuthnRegistration(username, credential) {
         console.log("Verification API details, username:", username);
         console.log("Verification API details, raw credentials:", credential);
 
-        const sessionID = localStorage.getItem('sessionID');
+        const sessionID = localStorage.getItem('SessionID');
         if (!sessionID) {
             throw new Error("Session ID missing. Registration might not have been initiated correctly.");
         }
+        console.log("SessionID", sessionID)
         // Send the attestation response to the backend without any frontend encoding
         const response = await fetch(`${backendUrl}/register-webauthn/verify`, {
             method: 'POST',
