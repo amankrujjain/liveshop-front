@@ -114,13 +114,19 @@ export async function verifyWebAuthnRegistration(username, credential) {
 // Function to start WebAuthn Login
 export async function startWebAuthnLogin(username) {
     try {
+
+        const sessionID = localStorage.getItem("SessionID");
+
+        if (!sessionID) {
+          throw new Error("Session ID is missing. Please register first.");
+        }
         // Call the backend to get login (authentication) options
         const response = await fetch(`${backendUrl}/webauthn/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username }),
+            body: JSON.stringify({ username, sessionID }),
             credentials: "include", // Include cookies
         });
 
@@ -130,10 +136,12 @@ export async function startWebAuthnLogin(username) {
             throw new Error("An error occurred during login.");
         }
 
-        const webAuthnOptions = await response.json();
+       
+    const { options } = await response.json();
 
+    console.log("WebAuthn options received for login:", options);
         // Start WebAuthn authentication
-        const assertion = await startAuthentication(webAuthnOptions);
+        const assertion = await startAuthentication(options);
 
         console.log("Assertion created in WebAuthn:", assertion);
 
@@ -151,6 +159,12 @@ export async function verifyWebAuthnLogin(username, authResponse) {
         console.log("Login Verification API details, username:", username);
         console.log("Login Verification API details, raw authResponse:", authResponse);
 
+        const sessionID = localStorage.getItem("SessionID");
+
+        if (!sessionID) {
+            throw new Error("Session ID is missing. Please start the login process first.");
+        }
+
         // Send the authentication response to the backend without any frontend encoding
         const response = await fetch(`${backendUrl}/login-webauthn/verify`, {
             method: 'POST',
@@ -161,6 +175,7 @@ export async function verifyWebAuthnLogin(username, authResponse) {
             body: JSON.stringify({
                 username: username,
                 authResponse:authResponse,
+                sessionID: sessionID
             }),
         });
 
