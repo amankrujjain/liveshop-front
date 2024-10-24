@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import LeftNav from './LeftNav';
 import { useNavigate } from 'react-router-dom';
 import { Maincategory } from '../../Store/MaincategoryContextProvider';
+import toast from 'react-hot-toast';
 
 export default function AdminAddMaincategory() {
     const [name, setName] = useState("");
@@ -23,9 +24,10 @@ export default function AdminAddMaincategory() {
         setLoading(false); // Reset loading state after the request is done
 
         if (response.result === "Done") {
+            toast.success("Maincategory added !")
             navigate("/admin-maincategory");
         } else {
-            alert(response.message);
+            toast.error(response.message);
         }
     }
 

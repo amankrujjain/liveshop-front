@@ -1,4 +1,5 @@
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
+import toast from 'react-hot-toast';
 
 const backendUrl = process.env.NODE_ENV === "production" ? "https://liveshop-back.onrender.com" : 'http://localhost:8000';
 
@@ -8,9 +9,8 @@ const backendUrl = process.env.NODE_ENV === "production" ? "https://liveshop-bac
 export async function startWebAuthnRegistration(username) {
     try {
         if (!username) {
-            throw new Error("Username is missing or incorrect.");
+            toast.error("Username is missing or incorrect.");
         }
-
 
         // Call the backend API to get registration options
         const response = await fetch(`${backendUrl}/register-webauthn/start`, {
@@ -28,18 +28,18 @@ export async function startWebAuthnRegistration(username) {
             throw new Error("An error occurred while registering the user.");
         }
 
-        const {options, sessionID} = await response.json();
+        const { options, sessionID } = await response.json();
 
-        localStorage.setItem("SessionID", sessionID);
-        console.log("options", options)
-        
-        // Start WebAuthn registration without any further encoding on the frontend
+        // Store session in sessionStorage instead of localStorage
+        sessionStorage.setItem("SessionID", sessionID);
+        console.log("WebAuthn options received for registration:", options);
+
+        // Start WebAuthn registration
         const credential = await startRegistration(options);
-        
+
         console.log("Credentials created in WebAuthn utils:", credential);
 
         // Prepare the attestation response to be sent back to the backend
-        // No encoding is done here, raw data is passed as-is
         const attestationResponse = {
             id: credential.id,
             rawId: credential.rawId,  // Raw array buffer
@@ -55,7 +55,7 @@ export async function startWebAuthnRegistration(username) {
         return attestationResponse;
     } catch (error) {
         if (error.name === 'InvalidStateError') {
-            console.error("Authenticator was probably already registered by the user");
+            console.error("Authenticator was probably already registered by the user.");
         } else {
             console.error("WebAuthN Registration Error:", error.message);
         }
@@ -63,40 +63,39 @@ export async function startWebAuthnRegistration(username) {
     }
 }
 
+// Function to verify WebAuthn Registration
 export async function verifyWebAuthnRegistration(username, credential) {
     try {
         console.log("Verification API details, username:", username);
         console.log("Verification API details, raw credentials:", credential);
 
-        const sessionID = localStorage.getItem('SessionID');
+        const sessionID = sessionStorage.getItem('SessionID');
         if (!sessionID) {
             throw new Error("Session ID missing. Registration might not have been initiated correctly.");
         }
-        console.log("SessionID", sessionID)
-        // Send the attestation response to the backend without any frontend encoding
+        console.log("SessionID", sessionID);
+
+        // Send the attestation response to the backend
         const response = await fetch(`${backendUrl}/register-webauthn/verify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-           
             body: JSON.stringify({
-                sessionID:sessionID,
-                username: username,
+                sessionID,
+                username,
                 attestationResponse: {
-                    id: credential.id,  // Already a string
-                    rawId: credential.rawId,  // Already a base64URL string
+                    id: credential.id,
+                    rawId: credential.rawId,
                     response: {
-                        clientDataJSON: credential.response.clientDataJSON,  // Already a base64URL string
-                        attestationObject: credential.response.attestationObject,  // Already a base64URL string
+                        clientDataJSON: credential.response.clientDataJSON,
+                        attestationObject: credential.response.attestationObject,
                     },
-                    type: credential.type,  // No conversion needed, pass as-is
+                    type: credential.type,
                 },
             }),
             credentials: 'include',
         });
-
-        console.log("Response sent to backend:", response);
 
         if (!response.ok) {
             const errorResponse = await response.json();
@@ -104,29 +103,33 @@ export async function verifyWebAuthnRegistration(username, credential) {
             throw new Error('Failed to verify WebAuthN registration.');
         }
 
+        // Clear session ID after successful verification
+        sessionStorage.removeItem("SessionID");
+
         return await response.json();
     } catch (error) {
         console.error("WebAuthN Registration Verification Error:", error);
         throw error;
     }
 }
-
+// Function to start WebAuthn Login
 // Function to start WebAuthn Login
 export async function startWebAuthnLogin(username) {
     try {
-
-        const sessionID = localStorage.getItem("SessionID");
+        // Retrieve sessionID from sessionStorage (or localStorage if preferred)
+        const sessionID = sessionStorage.getItem("SessionID");
 
         if (!sessionID) {
-          throw new Error("Session ID is missing. Please register first.");
+            throw new Error("Session ID is missing. Please start the login process first.");
         }
+
         // Call the backend to get login (authentication) options
         const response = await fetch(`${backendUrl}/webauthn/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username, sessionID }),
+            body: JSON.stringify({ username, sessionID }),  // Send session ID with username
             credentials: "include", // Include cookies
         });
 
@@ -136,17 +139,16 @@ export async function startWebAuthnLogin(username) {
             throw new Error("An error occurred during login.");
         }
 
-       
-    const { options } = await response.json();
+        const { options } = await response.json();
 
-    console.log("WebAuthn options received for login:", options);
-        // Start WebAuthn authentication
+        console.log("WebAuthn options received for login:", options);
+
+        // Start WebAuthn authentication (browser will prompt for biometrics, etc.)
         const assertion = await startAuthentication(options);
 
         console.log("Assertion created in WebAuthn:", assertion);
 
-
-        return assertion;
+        return assertion;  // Return the assertion for verification
     } catch (error) {
         console.error("WebAuthN Login Error:", error);
         throw error;
@@ -159,7 +161,7 @@ export async function verifyWebAuthnLogin(username, authResponse) {
         console.log("Login Verification API details, username:", username);
         console.log("Login Verification API details, raw authResponse:", authResponse);
 
-        const sessionID = localStorage.getItem("SessionID");
+        const sessionID = sessionStorage.getItem("SessionID");
 
         if (!sessionID) {
             throw new Error("Session ID is missing. Please start the login process first.");
@@ -171,11 +173,11 @@ export async function verifyWebAuthnLogin(username, authResponse) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include',
+            credentials: 'include',  // Send credentials
             body: JSON.stringify({
-                username: username,
-                authResponse:authResponse,
-                sessionID: sessionID
+                username,
+                authResponse,  // Send the assertion (authResponse)
+                sessionID,  // Include sessionID from sessionStorage
             }),
         });
 
@@ -185,7 +187,10 @@ export async function verifyWebAuthnLogin(username, authResponse) {
             throw new Error('Failed to verify WebAuthN login.');
         }
 
-        return await response.json();
+        // Clear session ID after successful login verification
+        sessionStorage.removeItem("SessionID");
+
+        return await response.json();  // Return response from server (e.g., token, user info)
     } catch (error) {
         console.error("WebAuthN Login Verification Error:", error);
         throw error;

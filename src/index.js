@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './Components/App'
+import {Toaster} from 'react-hot-toast'
+
 
 import MaincategoryContextProvider from './Store/MaincategoryContextProvider'
 import SubcategoryContextProvider from './Store/SubcategoryContextProvider'
@@ -23,15 +25,40 @@ root.render(
                     <ProductContextProvider>
                         <UserContextProvider>
                             <ContactContextProvider>
-                               <NewslatterContextProvider>
-                                   <CartContextProvider>
-                                    <WishlistContextProvider>
-                                        <CheckoutContextProvider>
-                                            <App />
-                                        </CheckoutContextProvider>
-                                    </WishlistContextProvider>
-                                   </CartContextProvider>
-                               </NewslatterContextProvider>
+                                <NewslatterContextProvider>
+                                    <CartContextProvider>
+                                        <WishlistContextProvider>
+                                            <CheckoutContextProvider>
+                                                <App />
+                                                <Toaster
+                                                    position="top-right"
+                                                    reverseOrder={false}
+                                                    gutter={8}
+                                                    containerClassName=""
+                                                    containerStyle={{}}
+                                                    toastOptions={{
+                                                        // Define default options
+                                                        className: '',
+                                                        duration: 5000,
+                                                        style: {
+                                                            background: '#FFFFFF',
+                                                            color: 'black',
+                                                        },
+
+                                                        // Default options for specific types
+                                                        success: {
+                                                            duration: 3000,
+                                                            theme: {
+                                                                primary: 'green',
+                                                                secondary: 'black',
+                                                            },
+                                                        },
+                                                    }}
+                                                />
+                                            </CheckoutContextProvider>
+                                        </WishlistContextProvider>
+                                    </CartContextProvider>
+                                </NewslatterContextProvider>
                             </ContactContextProvider>
                         </UserContextProvider>
                     </ProductContextProvider>

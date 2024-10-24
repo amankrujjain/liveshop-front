@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import pic from "../assets/images/signup.jpg";
 import { User } from '../Store/UserContextProvider'; // Ensure the correct context
 import { startWebAuthnRegistration, verifyWebAuthnRegistration } from '../utils/WebAuthnUtils'; // Ensure these utilities are correct
+import { toast } from 'react-hot-toast'
 
 export default function Signup() {
     const [user, setUser] = useState({
@@ -20,10 +21,10 @@ export default function Signup() {
 
     useEffect(() => {
         if (window.PublicKeyCredential) {
-            alert("WebAuthn is supported");
+            toast.success("WebAuthn is supported");
             setIsWebAuthnSupported(true);
         } else {
-            alert("WebAuthn is not supported");
+            toast.error("WebAuthn is not supported");
             setIsWebAuthnSupported(false);
         }
     }, []);
@@ -62,26 +63,30 @@ export default function Signup() {
 
 
                         if (verifyResponse.result === "Done") {
-                            alert("Signup and WebAuthN Registration Successful!");
+                            toast.success("Account Created Successfully", {
+                                icon: '🎉',
+                            });
                             navigate("/login");
                         } else {
-                            alert("WebAuthN Registration Failed: " + verifyResponse.message);
+                            toast.error("Device Registration Failed: " + verifyResponse.message);
                         }
                     } catch (error) {
                         console.error("Error during WebAuthN process:", error);
-                        alert("WebAuthN setup could not be initiated.");
+                        toast.error("Device setup could not be initiated.");
                     }
                 } else {
-                    alert("Signup Successful, but WebAuthN is not supported on this device.");
+                    toast.error("Signup Successful, but device is not supported.",{
+                        icon:"⚠️",
+                    });
                     navigate("/login");
                 }
             } else {
                 console.log("Response message", response.message)
-                alert(response.message);
+                toast.error(response.message);
                 navigate('/login')
             }
         } else {
-            alert("Password and Confirm Password do not match!");
+            toast.error("Password and Confirm Password do not match!");
         }
     };
     return (

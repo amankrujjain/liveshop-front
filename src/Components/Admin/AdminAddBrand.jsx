@@ -4,6 +4,7 @@ import LeftNav from './LeftNav'
 
 import { useNavigate } from 'react-router-dom'
 import { Brand } from '../../Store/BrandContextProvider'
+import toast from 'react-hot-toast'
 export default function AdminAddBrand() {
     var [name, setname] = useState("")
     var { add } = useContext(Brand)
@@ -17,10 +18,12 @@ export default function AdminAddBrand() {
             name: name
         }
         const response = await add(item)
-        if (response.result === "Done")
+        if (response.result === "Done"){
+            toast.success("Brand created !")
             navigate("/admin-brand")
+        }
         else
-            alert(response.message)
+            toast.error(response.message)
     }
     return (
         <div className='container-fluid mt-2'>

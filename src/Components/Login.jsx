@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User } from "../Store/UserContextProvider";
 import pic from "../assets/images/login.jpg";
 import { startWebAuthnLogin, verifyWebAuthnLogin } from '../utils/WebAuthnUtils'; // Imported the utils
+import toast from 'react-hot-toast';
 
 export default function Login() {
     const [user, setUser] = useState({
@@ -28,13 +29,16 @@ export default function Login() {
         try {
             // Validate that both username and password are provided for normal login
             if (!user.username || !user.password) {
-                alert("Username and Password are required for normal login.");
+                toast.error("Username and Password are required for normal login.",{
+                    icon:"⚠️"
+                });
                 return;
             }
 
             const response = await login(user); // Assuming login returns a response with token and user data
 
             if (response.result === "Done") {
+                toast.success("Successfully logged in")
                 // Store relevant details in localStorage
                 localStorage.setItem("login", "true");
                 localStorage.setItem("username", response.data.username);
@@ -51,11 +55,13 @@ export default function Login() {
                 }
             } else {
                 // Display an error message if login failed
-                alert("Invalid Username or Password");
+                toast.error("Invalid Username or Password",{
+                    icon:"⚠️"
+                });
             }
         } catch (error) {
             console.error("Login Error:", error);
-            alert("An error occurred while logging in. Please try again.");
+            toast.error("An error occurred while logging in. Please try again.");
         }
     }
 
@@ -63,7 +69,9 @@ export default function Login() {
     async function loginWithDevice() {
         try {
             if (!user.username) {
-                alert("Please enter your username before using device login.");
+                toast.error("Username is required for device login.",{
+                    icon:"⚠️"
+                });
                 return;
             }
 
@@ -91,11 +99,11 @@ export default function Login() {
                     navigate("/profile");
                 }
             } else {
-                alert("Authentication failed, please try again.");
+                toast.error("Authentication failed, please try again.");
             }
         } catch (error) {
             console.error("WebAuthn Login Error:", error);
-            alert("An error occurred while logging in with device. Please try again.");
+            toast.error("An error occurred while logging in with device. Please try again.");
         }
     }
 

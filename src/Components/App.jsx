@@ -36,6 +36,8 @@ import Confirmation from './Confirmation';
 import SingleProductPage from './SingleProductPage'; // Import the SingleProductPage
 import Shop from './Shop';
 import Signup from './Signup';
+import { toast } from 'react-hot-toast'
+
 
 export default function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -53,27 +55,13 @@ export default function App() {
     };
 
     useEffect(() => {
-        // Initialize WebSocket connection when the app loads
-        initWebSocket();
+        if (isLoggedIn) {
+            initWebSocket(); // Only initialize WebSocket after the user is logged in
+        }
 
-        // Handle network status (online/offline)
-        const handleOffline = () => {
-            alert("No internet connection found.");
-        };
-
-        const handleOnline = () => {
-            alert("Internet connection restored.");
-        };
-
-        window.addEventListener('offline', handleOffline);
-        window.addEventListener('online', handleOnline);
-
-        // Clean up the event listeners on component unmount
-        return () => {
-            window.removeEventListener('offline', handleOffline);
-            window.removeEventListener('online', handleOnline);
-        };
-    }, []);
+        
+    }, [isLoggedIn]);
+    
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -83,7 +71,9 @@ export default function App() {
             setIsLoggedIn(true);
             setRole(userRole);
         } else {
-            localStorage.clear();
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+
             setIsLoggedIn(false);
             setRole(null);
         }
@@ -99,57 +89,58 @@ export default function App() {
         if (!isLoggedIn) {
             return <Navigate to="/login" />;
         }
-        if (role !== 'Admin') {
+        if (adminOnly && role !== 'Admin') {
             return <Navigate to="/profile" />;
         }
         return children;
     };
 
     return (
-        <BrowserRouter>
-            <Navbar />
-            <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path='/signup' element={<Signup/>}/>
-                <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
-                <Route path="/cart" element={isLoggedIn ? <Cart /> : <Navigate to="/login" />} />
-                <Route path="/checkout" element={isLoggedIn ? <Checkout /> : <Navigate to="/login" />} />
-                <Route path="/confirmation" element={isLoggedIn ? <Confirmation /> : <Navigate to="/login" />} />
-                <Route path='/update-profile' element={isLoggedIn ? <UpdateProfile /> : <Navigate to='/login' />} />
+        <>
 
-                {/* Single Product Route */}
-                <Route path="/single-product/:id" element={<SingleProductPage />} />
-                <Route path="/shop/:mc/:sc/:br/:search" element={<Shop />} />
+            <BrowserRouter>
+                <Navbar />
+                <Routes>
+                    {/* Public Routes */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path='/signup' element={<Signup />} />
+                    <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
+                    <Route path="/cart" element={isLoggedIn ? <Cart /> : <Navigate to="/login" />} />
+                    <Route path="/checkout" element={isLoggedIn ? <Checkout /> : <Navigate to="/login" />} />
+                    <Route path="/confirmation" element={isLoggedIn ? <Confirmation /> : <Navigate to="/login" />} />
+                    <Route path='/update-profile' element={isLoggedIn ? <UpdateProfile /> : <Navigate to='/login' />} />
 
-                {/* Admin Routes */}
-                <Route path="/admin-home" element={<ProtectedRoute adminOnly={true}><AdminHome /></ProtectedRoute>} />
-                <Route path="/admin-maincategory" element={<ProtectedRoute adminOnly={true}><AdminMaincategory /></ProtectedRoute>} />
-                <Route path="/admin-add-maincategory" element={<ProtectedRoute adminOnly={true}><AdminAddMaincategory /></ProtectedRoute>} />
-                <Route path="/admin-update-maincategory/:_id" element={<ProtectedRoute adminOnly={true}><AdminUpdateMaincategory /></ProtectedRoute>} />
-                <Route path="/admin-subcategory" element={<ProtectedRoute adminOnly={true}><AdminSubcategory /></ProtectedRoute>} />
-                <Route path="/admin-add-subcategory" element={<ProtectedRoute adminOnly={true}><AdminAddSubcategory /></ProtectedRoute>} />
-                <Route path="/admin-update-subcategory/:_id" element={<ProtectedRoute adminOnly={true}><AdminUpdateSubcategory /></ProtectedRoute>} />
-                <Route path="/admin-brand" element={<ProtectedRoute adminOnly={true}><AdminBrand /></ProtectedRoute>} />
-                <Route path="/admin-add-brand" element={<ProtectedRoute adminOnly={true}><AdminAddBrand /></ProtectedRoute>} />
-                <Route path="/admin-update-brand/:_id" element={<ProtectedRoute adminOnly={true}><AdminUpdateBrand /></ProtectedRoute>} />
-                <Route path="/admin-product" element={<ProtectedRoute adminOnly={true}><AdminProduct /></ProtectedRoute>} />
-                <Route path="/admin-add-product" element={<ProtectedRoute adminOnly={true}><AdminAddProduct /></ProtectedRoute>} />
-                <Route path="/admin-update-product/:_id" element={<ProtectedRoute adminOnly={true}><AdminUpdateProduct /></ProtectedRoute>} />
+                    {/* Single Product Route */}
+                    <Route path="/single-product/:id" element={<SingleProductPage />} />
+                    <Route path="/shop/:mc/:sc/:br/:search" element={<Shop />} />
 
-                {/* Add missing Admin User List route */}
-                <Route path="/admin-userlist" element={<ProtectedRoute adminOnly={true}><AdminUserList /></ProtectedRoute>} />
-                <Route path="/admin-checkout" element={<ProtectedRoute adminOnly={true}><AdminCheckout /></ProtectedRoute>} />
-                <Route path="/admin-single-checkout/:_id" element={<ProtectedRoute adminOnly={true}><AdminSingleCheckout /></ProtectedRoute>} />
-                <Route path="/admin-contact" element={<ProtectedRoute adminOnly={true}><AdminContact /></ProtectedRoute>} />
-                <Route path="/Admin-single-contact/:_id" element={<ProtectedRoute adminOnly={true}><AdminSingleContact /></ProtectedRoute>} />
-                <Route path="/admin-newslatter" element={<ProtectedRoute adminOnly={true}><AdminNewslatter /></ProtectedRoute>} />
+                    {/* Admin Routes */}
+                    <Route path="/admin-home" element={<ProtectedRoute adminOnly={true}><AdminHome /></ProtectedRoute>} />
+                    <Route path="/admin-maincategory" element={<ProtectedRoute adminOnly={true}><AdminMaincategory /></ProtectedRoute>} />
+                    <Route path="/admin-add-maincategory" element={<ProtectedRoute adminOnly={true}><AdminAddMaincategory /></ProtectedRoute>} />
+                    <Route path="/admin-update-maincategory/:_id" element={<ProtectedRoute adminOnly={true}><AdminUpdateMaincategory /></ProtectedRoute>} />
+                    <Route path="/admin-subcategory" element={<ProtectedRoute adminOnly={true}><AdminSubcategory /></ProtectedRoute>} />
+                    <Route path="/admin-add-subcategory" element={<ProtectedRoute adminOnly={true}><AdminAddSubcategory /></ProtectedRoute>} />
+                    <Route path="/admin-update-subcategory/:_id" element={<ProtectedRoute adminOnly={true}><AdminUpdateSubcategory /></ProtectedRoute>} />
+                    <Route path="/admin-brand" element={<ProtectedRoute adminOnly={true}><AdminBrand /></ProtectedRoute>} />
+                    <Route path="/admin-add-brand" element={<ProtectedRoute adminOnly={true}><AdminAddBrand /></ProtectedRoute>} />
+                    <Route path="/admin-update-brand/:_id" element={<ProtectedRoute adminOnly={true}><AdminUpdateBrand /></ProtectedRoute>} />
+                    <Route path="/admin-product" element={<ProtectedRoute adminOnly={true}><AdminProduct /></ProtectedRoute>} />
+                    <Route path="/admin-add-product" element={<ProtectedRoute adminOnly={true}><AdminAddProduct /></ProtectedRoute>} />
+                    <Route path="/admin-update-product/:_id" element={<ProtectedRoute adminOnly={true}><AdminUpdateProduct /></ProtectedRoute>} />
 
+                    {/* Add missing Admin User List route */}
+                    <Route path="/admin-userlist" element={<ProtectedRoute adminOnly={true}><AdminUserList /></ProtectedRoute>} />
+                    <Route path="/admin-checkout" element={<ProtectedRoute adminOnly={true}><AdminCheckout /></ProtectedRoute>} />
+                    <Route path="/admin-single-checkout/:_id" element={<ProtectedRoute adminOnly={true}><AdminSingleCheckout /></ProtectedRoute>} />
+                    <Route path="/admin-contact" element={<ProtectedRoute adminOnly={true}><AdminContact /></ProtectedRoute>} />
+                    <Route path="/admin-single-contact/:_id" element={<ProtectedRoute adminOnly={true}><AdminSingleContact /></ProtectedRoute>} />
+                    <Route path="/admin-newslatter" element={<ProtectedRoute adminOnly={true}><AdminNewslatter /></ProtectedRoute>} />
 
-
-            </Routes>
-            <Footer />
-        </BrowserRouter>
+                </Routes>
+                <Footer />
+            </BrowserRouter>
+        </>
     );
 }
