@@ -32,6 +32,8 @@ const connectWebSocket = () => {
     }
 
     socket = new WebSocket("wss://liveshop-back.onrender.com");
+    // socket = new WebSocket("ws://localhost:8080");
+
 
     socket.onopen = () => {
         console.log("WebSocket connection established.");
