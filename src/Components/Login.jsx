@@ -84,6 +84,7 @@ export default function Login() {
             console.log("Inside login jsx verification response", verificationResponse)
 
             if (verificationResponse.verified) {
+                toast.success("Login successful")
                 // Store relevant details in localStorage upon successful verification
                 localStorage.setItem("login", "true");
                 localStorage.setItem("username", verificationResponse.data.username);

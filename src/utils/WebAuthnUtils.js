@@ -104,7 +104,7 @@ export async function verifyWebAuthnRegistration(username, credential) {
         }
 
         // Clear session ID after successful verification
-        // localStorage.removeItem("SessionID");
+        localStorage.removeItem("SessionID");
 
         return await response.json();
     } catch (error) {
@@ -113,24 +113,16 @@ export async function verifyWebAuthnRegistration(username, credential) {
     }
 }
 // Function to start WebAuthn Login
-// Function to start WebAuthn Login
 export async function startWebAuthnLogin(username) {
     try {
-        // Retrieve sessionID from localStorage (or localStorage if preferred)
-        const sessionID = localStorage.getItem("SessionID");
-
-        if (!sessionID) {
-            throw new Error("Session ID is missing. Please start the login process first.");
-        }
-
-        // Call the backend to get login (authentication) options
+        // Call the backend to get new login (authentication) options and session ID
         const response = await fetch(`${backendUrl}/webauthn/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username, sessionID }),  // Send session ID with username
-            credentials: "include", // Include cookies
+            body: JSON.stringify({ username }),  // Send username only
+            credentials: "include",  // Include cookies if necessary
         });
 
         if (!response.ok) {
@@ -139,9 +131,12 @@ export async function startWebAuthnLogin(username) {
             throw new Error("An error occurred during login.");
         }
 
-        const { options } = await response.json();
+        const { options, sessionID } = await response.json();
 
         console.log("WebAuthn options received for login:", options);
+
+        // Store the new sessionID in localStorage for later verification
+        localStorage.setItem("SessionID", sessionID);
 
         // Start WebAuthn authentication (browser will prompt for biometrics, etc.)
         const assertion = await startAuthentication(options);
@@ -155,19 +150,17 @@ export async function startWebAuthnLogin(username) {
     }
 }
 
+
 // Function to verify WebAuthn Login (Authentication Verification)
 export async function verifyWebAuthnLogin(username, authResponse) {
     try {
-        console.log("Login Verification API details, username:", username);
-        console.log("Login Verification API details, raw authResponse:", authResponse);
-
         const sessionID = localStorage.getItem("SessionID");
 
         if (!sessionID) {
             throw new Error("Session ID is missing. Please start the login process first.");
         }
 
-        // Send the authentication response to the backend without any frontend encoding
+        // Send the authentication response to the backend for verification
         const response = await fetch(`${backendUrl}/login-webauthn/verify`, {
             method: 'POST',
             headers: {
@@ -176,8 +169,8 @@ export async function verifyWebAuthnLogin(username, authResponse) {
             credentials: 'include',  // Send credentials
             body: JSON.stringify({
                 username,
-                authResponse,  // Send the assertion (authResponse)
-                sessionID,  // Include sessionID from localStorage
+                authResponse,
+                sessionID,
             }),
         });
 
@@ -188,7 +181,7 @@ export async function verifyWebAuthnLogin(username, authResponse) {
         }
 
         // Clear session ID after successful login verification
-        // localStorage.removeItem("SessionID");
+        localStorage.removeItem("SessionID");
 
         return await response.json();  // Return response from server (e.g., token, user info)
     } catch (error) {
@@ -196,3 +189,4 @@ export async function verifyWebAuthnLogin(username, authResponse) {
         throw error;
     }
 }
+
