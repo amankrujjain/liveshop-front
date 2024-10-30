@@ -31,8 +31,7 @@ const connectWebSocket = () => {
         return; // Don't attempt to connect if the network is offline
     }
 
-    socket = new WebSocket("wss://liveshop-back.onrender.com");
-    // socket = new WebSocket("ws://localhost:8080");
+    socket = new WebSocket(process.env.NODE_ENV === "production" ? "wss://liveshop-back.onrender.com" : "ws://localhost:8080");
 
 
     socket.onopen = () => {
