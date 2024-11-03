@@ -12,7 +12,7 @@ export default function ProductItem(props) {
                 <CardMedia
                     component="img"
                     height="200"
-                    image={`/uploads/${props.pic}`}
+                    image={`http://localhost:8000/uploads/${props.pic}`}
                     alt="green iguana"
                 />
                 <CardContent>

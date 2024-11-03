@@ -8,6 +8,8 @@ import LeftNav from './LeftNav'
 
 import { Product } from '../../Store/ProductContextProvider';
 
+const backendURL = 'http://localhost:8000'
+
 export default function AdminProduct() {
     var [product, setproduct] = useState([])
     var { getProduct,deleteData} = useContext(Product)
@@ -56,6 +58,14 @@ export default function AdminProduct() {
                                     <th>Color</th>
                                     <th>Size</th>
                                     <th>Stock</th>
+                                    <th>Picture 1</th>
+                                    <th>Picture 2</th>
+                                    <th>Picture 3</th>
+                                    <th>Picture 4</th>
+                                    <th>Update</th>
+                                    <th>Delete</th>
+
+
                                 </tr>
                                 {
                                     product.map((item, index) => {
@@ -71,11 +81,11 @@ export default function AdminProduct() {
                                             <td>{item.color}</td>
                                             <td>{item.size}</td>
                                             <td>{item.stock}</td>
-                                            <td><img src={`/uploads/${item.pic1}`} width="100px" height="75px" className='rounded-1' alt=''></img></td>
-                                            <td><img src={`/uploads/${item.pic2}`} width="100px" height="75px" className='rounded-1' alt=''/></td>
-                                            <td><img src={`/uploads/${item.pic3}`} width="100px" height="75px" className='rounded-1' alt=''/></td>
-                                            <td><img src={`/uploads/${item.pic4}`} width="100px" height="75px" className='rounded-1' alt=''/></td>
-                                            <td><Link to={`/Admin-update-Product/${item._id}`}><EditIcon className="text-danger" titleAccess="Edit Product" /></Link></td>
+                                            <td><img src={`${backendURL}/uploads/${item.pic1}`} width="100px" height="75px" className='rounded-1' alt=''></img></td>
+                                            <td><img src={`${backendURL}/uploads/${item.pic2}`} width="100px" height="75px" className='rounded-1' alt=''/></td>
+                                            <td><img src={`${backendURL}/uploads/${item.pic3}`} width="100px" height="75px" className='rounded-1' alt=''/></td>
+                                            <td><img src={`${backendURL}/uploads/${item.pic4}`} width="100px" height="75px" className='rounded-1' alt=''/></td>
+                                            <td><Link to={`/admin-update-product/${item._id}`}><EditIcon className="text-danger" titleAccess="Edit Product" /></Link></td>
 
                                             <td><button className='btn mybtn' onClick={()=>deleteRecord(item._id)}><DeleteForeverIcon className="text-danger" titleAccess="Delete Product"/></button></td>
                                         </tr>

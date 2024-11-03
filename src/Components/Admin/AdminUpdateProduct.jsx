@@ -7,6 +7,7 @@ import { Product } from '../../Store/ProductContextProvider'
 import { Maincategory } from '../../Store/MaincategoryContextProvider'
 import { Subcategory } from '../../Store/SubcategoryContextProvider'
 import { Brand } from '../../Store/BrandContextProvider'
+import toast from 'react-hot-toast'
 export default function AdminUpdateProduct() {
     var [product, setproduct] = useState({
         name: "",
@@ -46,19 +47,19 @@ export default function AdminUpdateProduct() {
     }
     function getFile(e) {
         var name = e.target.name
-        var value = e.target.files[0].name
+        var file = e.target.files[0]
         setproduct((oldData) => {
             return {
                 ...oldData,
-                [name]: value
+                [name]: file
             }
         })
     }
     async function postData(e) {
         e.preventDefault()
-        var fp = product.baseprice-product.baseprice*product.discount/100
+        var fp = product.baseprice - product.baseprice * product.discount / 100
         var item = new FormData()
-        item.append('name',product.name)
+        item.append('name', product.name)
         item.append('maincategory', product.maincategory)
         item.append('subcategory', product.subcategory)
         item.append('brand', product.brand)
@@ -69,15 +70,22 @@ export default function AdminUpdateProduct() {
         item.append('baseprice', product.baseprice)
         item.append('discount', product.discount)
         item.append('finalprice', fp)
-        item.append('pic1', product.pic1)
-        item.append('pic2', product.pic2)
-        item.append('pic3', product.pic3)
-        item.append('pic4', product.pic4)
-        const response = await update(item,_id)
-        if (response.result === "Done")
+        if (product.pic1) item.append('pic1', product.pic1);
+        if (product.pic2) item.append('pic2', product.pic2);
+        if (product.pic3) item.append('pic3', product.pic3);
+        if (product.pic4) item.append('pic4', product.pic4);
+
+        for (let [key, value] of item.entries()) {
+            console.log(`${key}:`, value);
+        }
+
+        const response = await update(item, _id)
+        if (response.result === "Done"){
+            toast.success("Product updated successfully")
             navigate("/admin-product")
+        }
         else
-            alert(response.message)
+            toast.error(response.message)
     }
     async function getAPIData() {
         var item = {
@@ -88,12 +96,13 @@ export default function AdminUpdateProduct() {
             setproduct(presponse.data)
         }
         else
-            alert(presponse.message)
+            toast.error(presponse.message)
 
 
         var response = await getMaincategory()
         var items = response.data.filter((item) => item.name !== presponse.data.maincategory)
         if (response.result === "Done") {
+            console.log(response.result)
             setmaincategory(items)
         }
         else
@@ -108,7 +117,7 @@ export default function AdminUpdateProduct() {
             alert(response.message)
 
         response = await getBrand()
-        items = response.data.filter((item)=>item.name!==presponse.data.brand)
+        items = response.data.filter((item) => item.name !== presponse.data.brand)
         if (response.result === "Done") {
             setbrand(items)
         }
@@ -118,7 +127,7 @@ export default function AdminUpdateProduct() {
     }
     useEffect(() => {
         getAPIData()
-    },[])
+    }, [])
     return (
         <div className='container-fluid mt-2'>
             <div className='row'>

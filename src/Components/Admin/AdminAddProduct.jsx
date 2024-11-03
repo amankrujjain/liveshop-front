@@ -1,6 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react'
 
 import LeftNav from './LeftNav'
+import toast from 'react-hot-toast';
+
 
 import { useNavigate } from 'react-router-dom'
 import { Product } from '../../Store/ProductContextProvider'
@@ -8,6 +10,7 @@ import { Maincategory } from '../../Store/MaincategoryContextProvider'
 import { Subcategory } from '../../Store/SubcategoryContextProvider'
 import { Brand } from '../../Store/BrandContextProvider'
 export default function AdminAddProduct() {
+    let max_size = 10 * 1024 * 1024;
     var [product, setproduct] = useState({
         name: "",
         maincategory: "",
@@ -44,14 +47,28 @@ export default function AdminAddProduct() {
         })
     }
     function getFile(e) {
-        var name = e.target.name
-        var value = e.target.files[0]
-        setproduct((oldData) => {
-            return {
-                ...oldData,
-                [name]: value
-            }
-        })
+        var name = e.target.name;
+        var file = e.target.files[0];
+
+        // Calculate the current total size of all uploaded files
+        const totalSize =
+            (product.pic1?.size || 0) +
+            (product.pic2?.size || 0) +
+            (product.pic3?.size || 0) +
+            (product.pic4?.size || 0) +
+            (file?.size || 0);
+
+        // Check if the total size exceeds 10MB
+        if (totalSize > max_size) {
+            toast.error("Max file size limit of 10MB reached.");
+        } else {
+            setproduct((oldData) => {
+                return {
+                    ...oldData,
+                    [name]: file
+                };
+            });
+        }
     }
     async function postData(e) {
         e.preventDefault();
@@ -84,13 +101,14 @@ export default function AdminAddProduct() {
     
             // Check response status before proceeding
             if (response.result === "Done") {
+                toast.success("Product created successfully")
                 navigate("/admin-product");
             } else {
-                alert(response.message);
+                toast.error(response.message);
             }
         } catch (error) {
             console.error("Error during product creation:", error);
-            alert("Something went wrong. Please try again.");
+            toast.error("Something went wrong. Please try again.");
         }
     }
     
@@ -160,7 +178,7 @@ export default function AdminAddProduct() {
                                         ))
                                     }
                                 </select>
-
+                                <label className="form-label">Subcategory</label>
                                 <select name="subcategory" onChange={getData} className="form-select" value={product.subcategory}>
                                     {
                                         subcategory.map((item, index) => (
@@ -168,6 +186,7 @@ export default function AdminAddProduct() {
                                         ))
                                     }
                                 </select>
+                                <label className="form-label">Brand</label>
 
                                 <select name="brand" onChange={getData} className="form-select" value={product.brand}>
                                     {

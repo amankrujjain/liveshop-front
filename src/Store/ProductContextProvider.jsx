@@ -8,7 +8,7 @@ async function addProduct(item) {
     var rawdata = await fetch(`${backendUrl}/create-product`, {
         method: "post",
         headers: {
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
             "username": username
         },
@@ -17,18 +17,40 @@ async function addProduct(item) {
     })
     return await rawdata.json()
 }
-async function updateProduct(item,_id) {
-    
-    var rawdata = await fetch("/product/" + _id, {
-        method: "put",
-        headers: {
-            "authorization": localStorage.getItem("token"),
-            "username": localStorage.getItem("username")
-        },
-        body: item
-    })
-    console.log(item._id);
-    return await rawdata.json()
+async function updateProduct(item, _id) {
+    let token = localStorage.getItem("token");
+    let username = localStorage.getItem("username");
+
+    // Check for missing token
+    if (!token) {
+        console.error("No token found. Authorization is required.");
+        return { result: "Fail", message: "Authorization token is missing. Please log in." };
+    }
+
+    try {
+        const response = await fetch(`${backendUrl}/update-product/${_id}`, {
+            method: "PUT",
+            headers: {
+                "authorization": `Bearer ${token}`,
+                "username": username
+            },
+            body: item
+        });
+
+        // Handle non-200 response codes
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to update product:", response.status, errorData.message || response.statusText);
+            return { result: "Fail", message: errorData.message || `Error ${response.status}: ${response.statusText}` };
+        }
+
+        // Return response JSON if successful
+        return await response.json();
+    } catch (error) {
+        // Catch any other errors that might occur during the fetch
+        console.error("An error occurred while updating the product:", error);
+        return { result: "Fail", message: "An unexpected error occurred. Please try again later." };
+    }
 }
 async function getProduct() {
     let token = localStorage.getItem('token');
@@ -44,23 +66,29 @@ async function getProduct() {
     return await rawdata.json()
 }
 async function getSingleProduct(item) {
-    var rawdata = await fetch("/product/" + item._id,{
+    let token = localStorage.getItem('token');
+
+    let username = localStorage.getItem("username")
+    var rawdata = await fetch(`${backendUrl}/get-single-product/${item._id}`,{
         method: "get",
         headers: {
             "content-type": "application/json",
-            "authorization":localStorage.getItem("token"),
-            "username":localStorage.getItem("username")
+            "authorization":token,
+            "username":username
         }
     })
     return await rawdata.json()
 }
 async function deleteProduct(item) {
-    var rawdata = await fetch("/product/" + item._id, {
+    let token = localStorage.getItem("token");
+    let username = localStorage.getItem("username")
+    var rawdata = await fetch(`${backendUrl}/delete-product/${item._id}`, {
+
         method: "delete",
         headers: {
             "content-type": "application/json",
-            "authorization":localStorage.getItem("token"),
-            "username":localStorage.getItem("username")
+            "authorization":`Bearer ${token}`,
+            "username":username
         }
     })
     return await rawdata.json()
