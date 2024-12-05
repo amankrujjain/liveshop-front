@@ -20,7 +20,7 @@ export default function ProductItem(props) {
                     <p>Price &#8377;<del className='text-danger'>{props.baseprice.toFixed(0)}</del> {props.finalprice.toFixed(0)}</p>
                     <p>Discount {props.discount}%</p>
                 </CardContent>
-                   <Link to={`/single-product/${props._id}`} className='text-decoration-none text-center d-block w-100 background text-light p-1 rounded'>Add to Cart</Link>
+                   <Link to={`/get-single-product/${props._id}`} className='text-decoration-none text-center d-block w-100 background text-light p-1 rounded'>Add to Cart</Link>
             </CardActionArea>
         </Card>
     )

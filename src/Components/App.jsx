@@ -112,7 +112,7 @@ export default function App() {
                     <Route path='/update-profile' element={isLoggedIn ? <UpdateProfile /> : <Navigate to='/login' />} />
 
                     {/* Single Product Route */}
-                    <Route path="/single-product/:id" element={<SingleProductPage />} />
+                    <Route path="/get-single-product/:_id" element={<SingleProductPage />} />
                     <Route path="/shop/:mc/:sc/:br/:search" element={<Shop />} />
 
                     {/* Admin Routes */}

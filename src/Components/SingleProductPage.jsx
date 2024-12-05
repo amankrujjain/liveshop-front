@@ -6,6 +6,7 @@ import { Product as ProductContext } from '../Store/ProductContextProvider'
 import { Cart } from '../Store/CartContextProvider'
 import { Wishlist } from '../Store/WishlistContextProvider'
 import { useNavigate, useParams } from 'react-router-dom'
+import toast from 'react-hot-toast'
 export default function SingleProductPage() {
     var [product, setproduct] = useState({})
     var { getSingle } = useContext(ProductContext)
@@ -17,7 +18,9 @@ export default function SingleProductPage() {
         var item = {
             _id: _id
         }
+        console.log("item", item)
         const response = await getSingle(item)
+        console.log("response in single product",response)
         if(response.result==="Done")
         setproduct(response.data)
         else{
@@ -29,7 +32,7 @@ export default function SingleProductPage() {
             <Paper>
                 {
                     props.item.pic ?
-                        <img src={`/uploads/${props.item.pic}`} width="100%" height="500px" alt="" />
+                        <img src={`http://localhost:8000/uploads/${props.item.pic}`} width="100%" height="500px" alt="" />
                         : ""
                 }
             </Paper>
@@ -49,33 +52,64 @@ export default function SingleProductPage() {
             pic: product.pic4
         }
     ]
-    async function addToCart(){
-        let response = await getCart()
-        var cart = response.data.find((item)=>item.productid===_id)
-        if(cart === undefined){
-            var item = {
-                userid:localStorage.getItem("userid"),
-                productid:_id,
-                name:product.name,
-                maincategory:product.maincategory,
-                subcategory:product.subcategory,
-                brand:product.brand,
-                color:product.color,
-                size:product.size,
-                price:product.finalprice,
-                qty:1,
-                total:product.finalprice,
-                pic:product.pic1
+    async function addToCart() {
+        try {
+            // Retrieve the existing cart items
+            const response = await getCart();
+        
+            if (!response.success) {
+              toast.error(response.message);
+              return; // Exit early if fetching the cart fails
             }
-            response = await addCart(item)
-            if(response.result==="Fail")
-            alert(response.message)
-            else
-            navigate("/cart")  
-        }
-        else
-        navigate("/cart")
+        
+            console.log("Cart response data:", response.data);
+        
+            // Check if the product is already in the cart
+            const cartItem = response.data?.find((item) => item.productId?._id === _id);
+        
+            if (cartItem) {
+              // If the product exists in the cart, increment its quantity
+              const updatedItem = {
+                userId: localStorage.getItem("userid"),
+                productId: _id,
+                quantity: 1, // Increment quantity by 1
+              };
+        
+              console.log("Incrementing quantity for existing product:", updatedItem);
+        
+              const addResponse = await addCart(updatedItem);
+        
+              if (addResponse.success) {
+                toast.success("Quantity updated in cart");
+                navigate("/cart");
+              } else {
+                toast.error(addResponse.message);
+              }
+            } else {
+              // Add the product to the cart if it doesn't exist
+              const newItem = {
+                userId: localStorage.getItem("userid"),
+                productId: _id,
+                quantity: 1,
+              };
+        
+              console.log("Adding new product to cart:", newItem);
+        
+              const addResponse = await addCart(newItem);
+        
+              if (addResponse.success) {
+                toast.success("Product added to cart");
+                navigate("/cart");
+              } else {
+                toast.error(addResponse.message);
+              }
+            }
+          } catch (error) {
+            console.error("Error in addToCart:", error);
+            toast.error("Failed to add product to cart");
+          }
     }
+    
     async function addToWishlist(){
         let response = await getWishlist()
         var wishlist = response.data.find((item)=>item.productid===_id)

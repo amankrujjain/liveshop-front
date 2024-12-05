@@ -146,7 +146,7 @@ export default function Profile() {
                                         <td>{item.size}</td>
                                         <td>&#8377;{item.price ? item.price.toFixed(0) : ""}</td>
                                         <td>
-                                            <Link className='btn btn-sm btn-outline-primary' to={`/single-product/${item.productid}`}>
+                                            <Link className='btn btn-sm btn-outline-primary' to={`/get-single-product/${item.productid}`}>
                                                 <AddShoppingCartIcon />
                                             </Link>
                                         </td>

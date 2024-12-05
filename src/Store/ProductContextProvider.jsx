@@ -66,8 +66,8 @@ async function getProduct() {
     return await rawdata.json()
 }
 async function getSingleProduct(item) {
+    console.log(item)
     let token = localStorage.getItem('token');
-
     let username = localStorage.getItem("username")
     var rawdata = await fetch(`${backendUrl}/get-single-product/${item._id}`,{
         method: "get",
